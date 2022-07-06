@@ -15,6 +15,10 @@ class CreateSellBillItemsTable extends Migration
     {
         Schema::create('sell_bill_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('sell_bill_id')->constrained('sell_bills');
+            $table->foreignId('sell_order_item_id')->constrained('sell_order_items');
+            $table->float('price');
+            $table->integer('quantity');
             $table->timestamps();
         });
     }

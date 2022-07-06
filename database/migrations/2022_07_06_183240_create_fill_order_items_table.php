@@ -15,6 +15,9 @@ class CreateFillOrderItemsTable extends Migration
     {
         Schema::create('fill_order_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('fill_order_id')->constrained('fill_orders');
+            $table->foreignId('product_id')->constrained('products');
+            $table->integer('quantity');
             $table->timestamps();
         });
     }

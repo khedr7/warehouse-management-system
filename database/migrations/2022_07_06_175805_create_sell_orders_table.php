@@ -15,6 +15,9 @@ class CreateSellOrdersTable extends Migration
     {
         Schema::create('sell_orders', function (Blueprint $table) {
             $table->id();
+            $table->integer('number');
+            $table->string('description');
+            $table->foreignId('distribution_center_id')->constrained('distribution_centers');
             $table->timestamps();
         });
     }

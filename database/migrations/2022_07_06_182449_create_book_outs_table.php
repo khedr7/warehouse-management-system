@@ -15,6 +15,9 @@ class CreateBookOutsTable extends Migration
     {
         Schema::create('book_outs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->constrained('stores');
+            $table->foreignId('sell_bill_item_id')->constrained('sell_bill_items');
+            $table->date('date');
             $table->timestamps();
         });
     }

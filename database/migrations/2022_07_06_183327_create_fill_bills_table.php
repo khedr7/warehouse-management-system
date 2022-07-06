@@ -15,6 +15,9 @@ class CreateFillBillsTable extends Migration
     {
         Schema::create('fill_bills', function (Blueprint $table) {
             $table->id();
+            $table->integer('number');
+            $table->string('description');
+            $table->foreignId('fill_order_id')->constrained('fill_orders');
             $table->timestamps();
         });
     }

@@ -15,6 +15,9 @@ class CreateBookInsTable extends Migration
     {
         Schema::create('book_ins', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->constrained('stores');
+            $table->foreignId('fill_bill_item_id')->constrained('fill_bill_items');
+            $table->date('date');
             $table->timestamps();
         });
     }

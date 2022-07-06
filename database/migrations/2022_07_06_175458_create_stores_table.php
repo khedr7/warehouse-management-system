@@ -15,6 +15,12 @@ class CreateStoresTable extends Migration
     {
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->float('capacity');
+            $table->float('current_capacity');
+            $table->boolean('status');
+            $table->foreignId('location_id')->constrained('locations');
+            $table->foreignId('store_category_id')->constrained('store_categories');
             $table->timestamps();
         });
     }

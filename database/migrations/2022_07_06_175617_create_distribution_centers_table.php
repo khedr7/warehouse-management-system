@@ -15,6 +15,9 @@ class CreateDistributionCentersTable extends Migration
     {
         Schema::create('distribution_centers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->foreignId('location_id')->constrained('locations');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }

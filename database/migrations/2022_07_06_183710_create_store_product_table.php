@@ -15,6 +15,9 @@ class CreateStoreProductTable extends Migration
     {
         Schema::create('store_product', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->constrained('stores');
+            $table->foreignId('product_id')->constrained('products');
+            $table->integer('quantity');
             $table->timestamps();
         });
     }

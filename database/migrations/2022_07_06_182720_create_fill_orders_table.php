@@ -15,6 +15,9 @@ class CreateFillOrdersTable extends Migration
     {
         Schema::create('fill_orders', function (Blueprint $table) {
             $table->id();
+            $table->integer('number');
+            $table->string('description');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }
