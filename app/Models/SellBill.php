@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class SellBill extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'number',
+        'description',
+        'sell_order_id'
+    ];
 }

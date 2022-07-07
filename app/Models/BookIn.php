@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class BookIn extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'store_id',
+        'fill_bill_item_id',
+        'date'
+    ];
 }
