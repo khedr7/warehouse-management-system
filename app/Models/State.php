@@ -12,4 +12,10 @@ class State extends Model
     protected $fillable = [
         'name',
     ];
+
+    // one to many
+    public function locations()
+    {
+        return $this->hasMany(Location::class);
+    }
 }

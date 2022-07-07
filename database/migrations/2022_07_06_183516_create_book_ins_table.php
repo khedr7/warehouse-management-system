@@ -17,6 +17,7 @@ class CreateBookInsTable extends Migration
             $table->id();
             $table->foreignId('store_id')->constrained('stores');
             $table->foreignId('fill_bill_item_id')->constrained('fill_bill_items');
+            $table->integer('quantity');
             $table->date('date');
             $table->timestamps();
         });

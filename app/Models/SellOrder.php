@@ -14,4 +14,22 @@ class SellOrder extends Model
         'description',
         'distribution_center_id'
     ];
+
+    // one to many
+    public function distributionCenter()
+    {
+        return $this->belongsTo(DistributionCenter::class,'distribution_center_id');
+    }
+
+    // one to many
+    public function sellBills()
+    {
+        return $this->hasMany(SellBill::class);
+    }
+
+    // many to many
+    public function products()
+    {
+        return $this->belongsToMany(Product::class ,'sell_order_items','sell_order_id','product_id');
+    }
 }

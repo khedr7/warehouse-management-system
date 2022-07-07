@@ -26,14 +26,32 @@ class Store extends Model implements HasMedia
     }
 
     // many to many
-    public function stores()
+    public function products()
     {
-        return $this->belongsToMany(Store::class ,'store_product','store_id','product_id');
+        return $this->belongsToMany(Product::class ,'store_product','store_id','product_id');
     }
 
     // many to many
     public function users()
     {
-        return $this->belongsToMany(Store::class ,'store_user','store_id','user_id');
+        return $this->belongsToMany(User::class ,'store_user','store_id','user_id');
+    }
+
+    // one to many
+    public function location()
+    {
+        return $this->belongsTo(Location::class,'location_id');
+    }
+
+    // one to many
+    public function bookOuts()
+    {
+        return $this->hasMany(BookOut::class);
+    }
+
+    // one to many
+    public function bookIns()
+    {
+        return $this->hasMany(BookIn::class);
     }
 }

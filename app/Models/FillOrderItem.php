@@ -14,4 +14,10 @@ class FillOrderItem extends Model
         'product_id',
         'quantity'
     ];
+
+    // one to many
+    public function fillBillItems()
+    {
+        return $this->hasMany(FillBillItem::class);
+    }
 }

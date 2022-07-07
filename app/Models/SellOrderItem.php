@@ -14,4 +14,13 @@ class SellOrderItem extends Model
         'product_id',
         'quantity'
     ];
+
+
+    // one to many
+    public function sellBillItems()
+    {
+        return $this->hasMany(SellBillItem::class);
+    }
+
+
 }

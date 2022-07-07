@@ -17,6 +17,7 @@ class CreateBookOutsTable extends Migration
             $table->id();
             $table->foreignId('store_id')->constrained('stores');
             $table->foreignId('sell_bill_item_id')->constrained('sell_bill_items');
+            $table->integer('quantity');
             $table->date('date');
             $table->timestamps();
         });

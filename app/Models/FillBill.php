@@ -14,4 +14,16 @@ class FillBill extends Model
         'description',
         'fill_order_id'
     ];
+
+    // one to many
+    public function fillOrder()
+    {
+        return $this->belongsTo(FillOrder::class,'fill_order_id');
+    }
+
+    // one to many
+    public function fillBillItems()
+    {
+        return $this->hasMany(FillBillItem::class);
+    }
 }

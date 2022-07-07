@@ -14,4 +14,16 @@ class SellBill extends Model
         'description',
         'sell_order_id'
     ];
+
+    // one to many
+    public function sellOrder()
+    {
+        return $this->belongsTo(SellOrder::class,'sell_order_id');
+    }
+
+    // one to many
+    public function sellBillItems()
+    {
+        return $this->hasMany(SellBillItem::class);
+    }
 }

@@ -16,4 +16,22 @@ class DistributionCenter extends Model implements HasMedia
         'location_id',
         'user_id'
     ];
+
+    // one to many
+    public function location()
+    {
+        return $this->belongsTo(Location::class,'location_id');
+    }
+
+    // one to many
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
+
+    // one to many
+    public function sellOrders()
+    {
+        return $this->hasMany(SellOrder::class);
+    }
 }

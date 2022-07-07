@@ -14,4 +14,16 @@ class BookOut extends Model
         'sell_bill_item_id  ',
         'date'
     ];
+
+    // one to many
+    public function store()
+    {
+        return $this->belongsTo(Store::class,'store_id');
+    }
+
+    // one to many
+    public function sellBillItem()
+    {
+        return $this->belongsTo(SellBillItem::class,'sell_bill_item_id');
+    }
 }

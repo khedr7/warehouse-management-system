@@ -16,4 +16,21 @@ class FillOrder extends Model
         'fill_order_id'
     ];
 
+    // one to many
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
+
+    // one to many
+    public function fillBills()
+    {
+        return $this->hasMany(FillBill::class);
+    }
+
+    // many to many
+    public function products()
+    {
+        return $this->belongsToMany(Product::class ,'fill_order_items','fill_order_id','product_id');
+    }
 }
