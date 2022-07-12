@@ -64,9 +64,13 @@ class StoreCategoryController extends Controller
      */
     public function show(StoreCategory $storeCategory)
     {
+
+        $mediaItems = $storeCategory->getMedia('images');
+
         if ($storeCategory){
             return response()->json([
                 'Store Category' => $storeCategory,
+                'Media Items'    => $mediaItems
             ], 200);
         }
         return response()->json([

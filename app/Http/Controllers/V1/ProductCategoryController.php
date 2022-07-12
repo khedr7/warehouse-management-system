@@ -64,9 +64,12 @@ class ProductCategoryController extends Controller
      */
     public function show(ProductCategory $productCategory)
     {
+        $mediaItems = $productCategory->getMedia('images');
+
         if ($productCategory){
             return response()->json([
                 'product Category' => $productCategory,
+                'Media Items'      => $mediaItems
             ], 200);
         }
 

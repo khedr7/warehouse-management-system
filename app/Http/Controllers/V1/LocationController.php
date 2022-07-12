@@ -15,7 +15,11 @@ class LocationController extends Controller
      */
     public function index()
     {
-        //
+        $location = Location::latest();
+
+        return response()->json([
+            'Location' => $location,
+        ], 200);
     }
 
     /**
@@ -26,7 +30,22 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = $request->validate([
+            'name'       => 'required|min:2|max:10',
+            'state_id'   => 'required|numeric|exists:states,id',
+        ]);
+
+        $location = Location::create($validation);
+
+        // checking the creation
+        if ($location){
+            return response()->json([
+                'message' => "Location created successfully",
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
     /**
@@ -37,7 +56,14 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
-        //
+        if ($location){
+            return response()->json([
+                'Location' => $location,
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 404);
     }
 
     /**
@@ -49,7 +75,23 @@ class LocationController extends Controller
      */
     public function update(Request $request, Location $location)
     {
-        //
+        $validation = $request->validate([
+            'name'       => 'required|min:2|max:10',
+            'state_id'   => 'required|numeric|exists:states,id',
+        ]);
+
+        $location->name = $validation['name'];
+        $location->state_id = $validation['state_id'];
+        $location->save();
+
+        if ($location){
+            return response()->json([
+                'message' => "Location edited successfully",
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
     /**
@@ -60,6 +102,16 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
-        //
+        $location->delete();
+
+        if($location){
+            return response()->json([
+                'message' => 'Error',
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => "Location deleted successfully",
+        ], 200);
     }
 }
