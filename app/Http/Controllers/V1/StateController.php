@@ -15,7 +15,11 @@ class StateController extends Controller
      */
     public function index()
     {
-        //
+        $states = State::latest();
+
+        return response()->json([
+            'States' => $states,
+        ], 200);
     }
 
     /**
@@ -26,7 +30,20 @@ class StateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = $request->validate([
+            'name'     => 'required|min:2|max:10',
+        ]);
+        $state = State::create($validation);
+
+        // checking the creation
+        if ($state){
+            return response()->json([
+                'message' => "State created successfully",
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
     /**
@@ -37,7 +54,14 @@ class StateController extends Controller
      */
     public function show(State $state)
     {
-        //
+        if ($state){
+            return response()->json([
+                'State' => $state,
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 404);
     }
 
     /**
@@ -49,7 +73,21 @@ class StateController extends Controller
      */
     public function update(Request $request, State $state)
     {
-        //
+        $validation = $request->validate([
+            'name'     => 'required|min:2|max:10',
+        ]);
+
+        $state->name = $validation['name'];
+        $state->save();
+
+        if ($state){
+            return response()->json([
+                'message' => "State edited successfully",
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
     /**
@@ -60,6 +98,16 @@ class StateController extends Controller
      */
     public function destroy(State $state)
     {
-        //
+        $state->delete();
+
+        if($state){
+            return response()->json([
+                'message' => 'Error',
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => "State deleted successfully",
+        ], 200);
     }
 }

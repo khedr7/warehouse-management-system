@@ -64,9 +64,15 @@ class StoreCategoryController extends Controller
      */
     public function show(StoreCategory $storeCategory)
     {
+        if ($storeCategory){
+            return response()->json([
+                'Store Category' => $storeCategory,
+            ], 200);
+        }
         return response()->json([
-            'Store Category' => $storeCategory,
-        ], 200);
+            'message' => 'Error',
+        ], 404);
+
     }
 
     /**
