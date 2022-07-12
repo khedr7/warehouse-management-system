@@ -15,10 +15,10 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $location = Location::latest();
+        $locations = Location::latest();
 
         return response()->json([
-            'Location' => $location,
+            'Locations' => $locations,
         ], 200);
     }
 
