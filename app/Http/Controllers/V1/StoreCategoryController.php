@@ -15,7 +15,11 @@ class StoreCategoryController extends Controller
      */
     public function index()
     {
-        //
+        $storeCategories = StoreCategory::latest();
+
+        return response()->json([
+            'Store categories' => $storeCategories,
+        ], 200);
     }
 
     /**
@@ -26,7 +30,30 @@ class StoreCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = $request->validate([
+            'name'     => 'required|min:2|max:10',
+            'images'   => 'required|array',
+            'images.*' => 'required|file|image',
+        ]);
+        $storeCategories = StoreCategory::create($validation);
+
+        // add  images to storeCategories using media library
+        if ($request->hasFile('images')) {
+            $fileAdders = $storeCategories->addMultipleMediaFromRequest(['images'])
+            ->each(function ($fileAdder) {
+                $fileAdder->preservingOriginal()->toMediaCollection('images');
+            });
+        }
+
+        // checking the creation
+        if ($storeCategories){
+            return response()->json([
+                'message' => "The store's category created successfully",
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
     /**
@@ -37,7 +64,9 @@ class StoreCategoryController extends Controller
      */
     public function show(StoreCategory $storeCategory)
     {
-        //
+        return response()->json([
+            'Store Category' => $storeCategory,
+        ], 200);
     }
 
     /**
@@ -49,7 +78,35 @@ class StoreCategoryController extends Controller
      */
     public function update(Request $request, StoreCategory $storeCategory)
     {
-        //
+        $validation = $request->validate([
+            'name'     => 'required|min:2|max:10',
+            'images'   => 'required|array',
+            'images.*' => 'required|file|image',
+        ]);
+
+        $storeCategory->name = $validation['name'];
+        // get all images
+        $mediaItems = $storeCategory->getMedia('images');
+
+        // change the images (delete the previous collection and add new one)
+        if ($request->hasFile('images')) {
+            $storeCategory->clearMediaCollection('images');
+            $fileAdders = $storeCategory->addMultipleMediaFromRequest(['images'])
+            ->each(function ($fileAdder) {
+                $fileAdder->toMediaCollection('images');
+            });
+        }
+
+        $storeCategory->save();
+
+        if ($storeCategory){
+            return response()->json([
+                'message' => "The store's category edited successfully",
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
     /**
@@ -60,6 +117,16 @@ class StoreCategoryController extends Controller
      */
     public function destroy(StoreCategory $storeCategory)
     {
-        //
+        $storeCategory->delete();
+
+        if($storeCategory){
+            return response()->json([
+                'message' => 'Error',
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => "The store's category deleted successfully",
+        ], 200);
     }
 }
