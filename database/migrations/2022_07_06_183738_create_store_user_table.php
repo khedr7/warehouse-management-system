@@ -15,8 +15,8 @@ class CreateStoreUserTable extends Migration
     {
         Schema::create('store_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('store_id')->constrained('stores');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('store_id')->constrained('stores')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

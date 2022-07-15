@@ -17,7 +17,7 @@ class CreateFillBillsTable extends Migration
             $table->id();
             $table->integer('number');
             $table->string('description');
-            $table->foreignId('fill_order_id')->constrained('fill_orders');
+            $table->foreignId('fill_order_id')->constrained('fill_orders')->onDelete('cascade');
             $table->timestamps();
         });
     }

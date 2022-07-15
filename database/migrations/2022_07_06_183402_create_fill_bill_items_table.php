@@ -15,8 +15,8 @@ class CreateFillBillItemsTable extends Migration
     {
         Schema::create('fill_bill_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('fill_bill_id')->constrained('fill_bills');
-            $table->foreignId('fill_order_item_id')->constrained('fill_order_items');
+            $table->foreignId('fill_bill_id')->constrained('fill_bills')->onDelete('cascade');
+            $table->foreignId('fill_order_item_id')->constrained('fill_order_items')->onDelete('cascade');
             $table->float('price');
             $table->integer('quantity');
             $table->timestamps();

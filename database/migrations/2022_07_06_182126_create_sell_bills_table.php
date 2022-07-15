@@ -17,7 +17,7 @@ class CreateSellBillsTable extends Migration
             $table->id();
             $table->integer('number');
             $table->string('description');
-            $table->foreignId('sell_order_id')->constrained('sell_orders');
+            $table->foreignId('sell_order_id')->constrained('sell_orders')->onDelete('cascade');
             $table->timestamps();
         });
     }

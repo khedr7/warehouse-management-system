@@ -17,7 +17,7 @@ class CreateDistributionCentersTable extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('location_id')->constrained('locations');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

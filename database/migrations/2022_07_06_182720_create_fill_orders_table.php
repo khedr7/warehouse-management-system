@@ -17,7 +17,7 @@ class CreateFillOrdersTable extends Migration
             $table->id();
             $table->integer('number');
             $table->string('description');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

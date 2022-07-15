@@ -19,8 +19,8 @@ class CreateStoresTable extends Migration
             $table->float('capacity');
             $table->float('current_capacity');
             $table->boolean('status');
-            $table->foreignId('location_id')->constrained('locations');
-            $table->foreignId('store_category_id')->constrained('store_categories');
+            $table->foreignId('location_id')->constrained('locations')->onDelete('cascade');
+            $table->foreignId('store_category_id')->constrained('store_categories')->onDelete('cascade');
             $table->timestamps();
         });
     }

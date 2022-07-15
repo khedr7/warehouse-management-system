@@ -17,7 +17,7 @@ class CreateSellOrdersTable extends Migration
             $table->id();
             $table->integer('number');
             $table->string('description');
-            $table->foreignId('distribution_center_id')->constrained('distribution_centers');
+            $table->foreignId('distribution_center_id')->constrained('distribution_centers')->onDelete('cascade');
             $table->timestamps();
         });
     }

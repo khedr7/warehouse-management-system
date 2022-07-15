@@ -15,8 +15,8 @@ class CreateBookOutsTable extends Migration
     {
         Schema::create('book_outs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('store_id')->constrained('stores');
-            $table->foreignId('sell_bill_item_id')->constrained('sell_bill_items');
+            $table->foreignId('store_id')->constrained('stores')->onDelete('cascade');
+            $table->foreignId('sell_bill_item_id')->constrained('sell_bill_items')->onDelete('cascade');
             $table->integer('quantity');
             $table->date('date');
             $table->timestamps();

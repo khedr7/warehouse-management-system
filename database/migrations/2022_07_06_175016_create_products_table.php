@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
-            $table->foreignId('product_category_id')->constrained('product_categories');
+            $table->foreignId('product_category_id')->constrained('product_categories')->onDelete('cascade');
             $table->timestamps();
         });
     }
