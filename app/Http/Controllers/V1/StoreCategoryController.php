@@ -17,8 +17,18 @@ class StoreCategoryController extends Controller
     {
         $storeCategories = StoreCategory::latest();
 
+        $data = [];
+        $i=0;
+        foreach ($storeCategories as $storeCategory) {
+            $data[$i] = [
+                'Store Category' => $storeCategory,
+                'Media Items'    => $storeCategory->getMedia('images')
+            ];
+            $i++;
+        }
+
         return response()->json([
-            'Store categories' => $storeCategories,
+            'Store categories' => $data,
         ], 200);
     }
 
@@ -35,18 +45,18 @@ class StoreCategoryController extends Controller
             'images'   => 'required|array',
             'images.*' => 'required|file|image',
         ]);
-        $storeCategories = StoreCategory::create($validation);
+        $storeCategory = StoreCategory::create($validation);
 
-        // add  images to storeCategories using media library
+        // add  images to storeCategory using media library
         if ($request->hasFile('images')) {
-            $fileAdders = $storeCategories->addMultipleMediaFromRequest(['images'])
+            $fileAdders = $storeCategory->addMultipleMediaFromRequest(['images'])
             ->each(function ($fileAdder) {
                 $fileAdder->preservingOriginal()->toMediaCollection('images');
             });
         }
 
         // checking the creation
-        if ($storeCategories){
+        if ($storeCategory){
             return response()->json([
                 'message' => "The store's category created successfully",
             ], 201);
@@ -64,13 +74,10 @@ class StoreCategoryController extends Controller
      */
     public function show(StoreCategory $storeCategory)
     {
-
-        $mediaItems = $storeCategory->getMedia('images');
-
         if ($storeCategory){
             return response()->json([
                 'Store Category' => $storeCategory,
-                'Media Items'    => $mediaItems
+                'Media Items'    => $storeCategory->getMedia('images')
             ], 200);
         }
         return response()->json([
@@ -95,8 +102,6 @@ class StoreCategoryController extends Controller
         ]);
 
         $storeCategory->name = $validation['name'];
-        // get all images
-        $mediaItems = $storeCategory->getMedia('images');
 
         // change the images (delete the previous collection and add new one)
         if ($request->hasFile('images')) {

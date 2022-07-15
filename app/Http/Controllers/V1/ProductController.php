@@ -17,8 +17,18 @@ class ProductController extends Controller
     {
         $products = Product::latest();
 
+        $data = [];
+        $i=0;
+        foreach ($products as $product) {
+            $data[$i] = [
+                'product'     => $product,
+                'Media Items' => $product->getMedia('images')
+            ];
+            $i++;
+        }
+
         return response()->json([
-            'Products' => $products,
+            'Products' => $data,
         ], 200);
     }
 
@@ -67,12 +77,10 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $mediaItems = $product->getMedia('images');
-
         if ($product){
             return response()->json([
                 'product'     => $product,
-                'Media Items' => $mediaItems
+                'Media Items' => $product->getMedia('images')
             ], 200);
         }
 
@@ -101,9 +109,6 @@ class ProductController extends Controller
         $product->name = $validation['name'];
         $product->description = $validation['description'];
         $product->product_category_id = $validation['product_category_id'];
-
-        // get all images
-        $mediaItems = $product->getMedia('images');
 
         // change the images (delete the previous collection and add new one)
         if ($request->hasFile('images')) {

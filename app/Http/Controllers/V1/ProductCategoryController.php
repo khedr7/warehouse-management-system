@@ -17,8 +17,18 @@ class ProductCategoryController extends Controller
     {
         $productCategories = ProductCategory::latest();
 
+        $data = [];
+        $i=0;
+        foreach ($productCategories as $productCategory) {
+            $data[$i] = [
+                'product Category' => $productCategory,
+                'Media Items'      => $productCategory->getMedia('images')
+            ];
+            $i++;
+        }
+
         return response()->json([
-            'product categories' => $productCategories,
+            'product categories' => $data,
         ], 200);
     }
 
@@ -64,12 +74,10 @@ class ProductCategoryController extends Controller
      */
     public function show(ProductCategory $productCategory)
     {
-        $mediaItems = $productCategory->getMedia('images');
-
         if ($productCategory){
             return response()->json([
                 'product Category' => $productCategory,
-                'Media Items'      => $mediaItems
+                'Media Items'      => $productCategory->getMedia('images')
             ], 200);
         }
 
@@ -94,8 +102,6 @@ class ProductCategoryController extends Controller
         ]);
 
         $productCategory->name = $validation['name'];
-        // get all images
-        $mediaItems = $productCategory->getMedia('images');
 
         // change the images (delete the previous collection and add new one)
         if ($request->hasFile('images')) {
