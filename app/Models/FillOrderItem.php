@@ -20,4 +20,10 @@ class FillOrderItem extends Model
     {
         return $this->hasMany(FillBillItem::class);
     }
+
+    // one to many
+    public function fillOrder()
+    {
+        return $this->belongsTo(FillOrder::class,'fill_order_id');
+    }
 }

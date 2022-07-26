@@ -12,7 +12,8 @@ class BookOut extends Model
     protected $fillable = [
         'store_id',
         'sell_bill_item_id  ',
-        'date'
+        'date',
+        'quantity'
     ];
 
     // one to many

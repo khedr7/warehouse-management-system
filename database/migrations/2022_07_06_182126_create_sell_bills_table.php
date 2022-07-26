@@ -16,7 +16,7 @@ class CreateSellBillsTable extends Migration
         Schema::create('sell_bills', function (Blueprint $table) {
             $table->id();
             $table->integer('number');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->foreignId('sell_order_id')->constrained('sell_orders')->onDelete('cascade');
             $table->timestamps();
         });

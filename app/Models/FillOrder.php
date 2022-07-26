@@ -28,6 +28,12 @@ class FillOrder extends Model
         return $this->hasMany(FillBill::class);
     }
 
+    // one to many
+    public function fillOrderItems()
+    {
+        return $this->hasMany(FillOrderItem::class);
+    }
+
     // many to many
     public function products()
     {

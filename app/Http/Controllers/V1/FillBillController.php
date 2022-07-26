@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\FillBill;
+use App\Models\FillOrderItem;
 use Illuminate\Http\Request;
 
 class FillBillController extends Controller
@@ -15,7 +16,21 @@ class FillBillController extends Controller
      */
     public function index()
     {
-        //
+        $fillBills = FillBill::latest();
+
+        $data = [];
+        $i=0;
+        foreach ($fillBills as $fillBill) {
+            $data[$i] = [
+                'Fill Bill'       => $fillBill,
+                'Fill Bill Items' => $fillBill->fillBillItems
+            ];
+            $i++;
+        }
+
+        return response()->json([
+            'Fill Bills' => $data,
+        ], 200);
     }
 
     /**
@@ -26,7 +41,42 @@ class FillBillController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = $request->validate([
+            'description'   => 'max:50',
+            'fill_order_id' => 'required|numeric|exists:fillOrders,id',
+            'fillBillItems' => 'required|array'
+        ]);
+        $fillBill = FillBill::create($validation);
+
+        foreach ($validation['fillBillItems'] as $fillBillItem) {
+
+            $fillOrderItem = FillOrderItem::findOrFail($fillBillItem['fill_order_item_id']);
+            $fbItems = $fillOrderItem->fillBillItems;
+            $sum = 0;
+            foreach ($fbItems as $fbItem) {
+                $sum += $fbItem->quantity;
+            }
+
+            if ( ($fillBillItem['quantity'] + $sum) <= $fillOrderItem->quantity ){
+                $fillBill->fillBillItems()->create([
+                    'fill_bill_id'       => $fillBill->id,
+                    'fill_order_item_id' => $fillBillItem['fill_order_item_id'],
+                    'price'              => $fillBillItem['price'],
+                    'quantity'           => $fillBillItem['quantity'],
+                ]);
+            }
+        }
+
+        // checking the creation
+        if ($fillBill){
+            return response()->json([
+                'message' => "Fill Bill created successfully",
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
+
     }
 
     /**
@@ -37,7 +87,15 @@ class FillBillController extends Controller
      */
     public function show(FillBill $fillBill)
     {
-        //
+        if ($fillBill){
+            return response()->json([
+                'Fill Bill'       => $fillBill,
+                'Fill Bill Items' => $fillBill->fillBillItems
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 404);
     }
 
     /**

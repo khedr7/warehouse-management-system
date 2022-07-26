@@ -12,7 +12,8 @@ class BookIn extends Model
     protected $fillable = [
         'store_id',
         'fill_bill_item_id',
-        'date'
+        'date',
+        'quantity'
     ];
 
     // one to many
