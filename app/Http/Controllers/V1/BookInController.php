@@ -20,10 +20,22 @@ class BookInController extends Controller
     {
         $bookIns = BookIn::latest();
 
-        return response()->json([
-            'Bookins' => $bookIns,
-        ], 200);
+        $data = [];
+        $i=0;
+        foreach ($bookIns as $bookIn) {
+            $fillBillItem  = $bookIn->fillBillItem;
+            $fillOrderItem = $fillBillItem->fillOrderItem;
 
+            $data[$i] = [
+                'BookIn'     => $bookIn,
+                'product_id' => $fillOrderItem->product_id
+            ];
+            $i++;
+        }
+
+        return response()->json([
+            'BookIns' => $data,
+        ], 200);
     }
 
     /**
@@ -73,8 +85,16 @@ class BookInController extends Controller
                 $storeProducts->quantity = $bookIn->quantity;
                 $storeProducts->save();
             }
-
         }
+
+        if ($bookIn){
+            return response()->json([
+                'message' => "BookIn created successfully",
+            ], 201);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
     }
 
         /**
@@ -90,7 +110,7 @@ class BookInController extends Controller
             $fillOrderItem = $fillBillItem->fillOrderItem;
 
             return response()->json([
-                'Bookin'       => $bookIn,
+                'Bookin'     => $bookIn,
                 'product_id' => $fillOrderItem->product_id
             ], 200);
         }
