@@ -27,6 +27,12 @@ class SellOrder extends Model
         return $this->hasMany(SellBill::class);
     }
 
+    // one to many
+    public function sellOrderItems()
+    {
+        return $this->hasMany(SellOrderItem::class);
+    }
+
     // many to many
     public function products()
     {

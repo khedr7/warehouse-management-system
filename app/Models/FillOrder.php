@@ -13,7 +13,7 @@ class FillOrder extends Model
     protected $fillable = [
         'number',
         'description',
-        'fill_order_id'
+        'user_id'
     ];
 
     // one to many

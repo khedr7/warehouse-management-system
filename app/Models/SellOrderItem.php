@@ -22,5 +22,10 @@ class SellOrderItem extends Model
         return $this->hasMany(SellBillItem::class);
     }
 
+    // one to many
+    public function sellOrder()
+    {
+        return $this->belongsTo(SellOrder::class,'sell_order_id');
+    }
 
 }
