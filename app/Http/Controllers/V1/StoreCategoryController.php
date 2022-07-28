@@ -15,20 +15,14 @@ class StoreCategoryController extends Controller
      */
     public function index()
     {
-        $storeCategories = StoreCategory::latest();
+        $storeCategories = StoreCategory::all();
 
-        $data = [];
-        $i=0;
         foreach ($storeCategories as $storeCategory) {
-            $data[$i] = [
-                'Store Category' => $storeCategory,
-                'Media Items'    => $storeCategory->getMedia('images')
-            ];
-            $i++;
+            $storeCategory->getMedia('images');
         }
 
         return response()->json([
-            'Store categories' => $data,
+            'Store categories' => $storeCategories,
         ], 200);
     }
 
@@ -40,10 +34,11 @@ class StoreCategoryController extends Controller
      */
     public function store(Request $request)
     {
+
         $validation = $request->validate([
-            'name'     => 'required|min:2|max:10',
-            'images'   => 'required|array',
-            'images.*' => 'required|file|image',
+            'name'     => 'required|min:2|max:15',
+            'images'   => 'array',
+            'images.*' => 'file|image',
         ]);
         $storeCategory = StoreCategory::create($validation);
 
@@ -75,9 +70,9 @@ class StoreCategoryController extends Controller
     public function show(StoreCategory $storeCategory)
     {
         if ($storeCategory){
+            $storeCategory->getMedia('images');
             return response()->json([
                 'Store Category' => $storeCategory,
-                'Media Items'    => $storeCategory->getMedia('images')
             ], 200);
         }
         return response()->json([
@@ -96,9 +91,9 @@ class StoreCategoryController extends Controller
     public function update(Request $request, StoreCategory $storeCategory)
     {
         $validation = $request->validate([
-            'name'     => 'required|min:2|max:10',
-            'images'   => 'required|array',
-            'images.*' => 'required|file|image',
+            'name'     => 'required|min:2|max:15',
+            'images'   => 'array',
+            'images.*' => 'file|image',
         ]);
 
         $storeCategory->name = $validation['name'];
@@ -132,16 +127,16 @@ class StoreCategoryController extends Controller
      */
     public function destroy(StoreCategory $storeCategory)
     {
-        $storeCategory->delete();
-
         if($storeCategory){
+            $storeCategory->delete();
             return response()->json([
-                'message' => 'Error',
-            ], 400);
+                'message' => "The store's category deleted successfully",
+            ], 200);
         }
 
         return response()->json([
-            'message' => "The store's category deleted successfully",
-        ], 200);
+            'message' => 'Error',
+        ], 400);
+
     }
 }

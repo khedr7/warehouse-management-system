@@ -47,10 +47,10 @@ class BookInController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'store_id' => 'required|numeric|exists:users,id',
+            'store_id'          => 'required|numeric|exists:users,id',
             'fill_bill_item_id' => 'required|numeric|exists:fillBillItems,id',
-            'date' => 'required|date',
-            'quantity' => 'required|numeric'
+            'date'              => 'required|date',
+            'quantity'          => 'required|numeric'
         ]);
 
         $fillBillItem = FillBillItem::findOrFail($validation['fill_bill_item_id']);

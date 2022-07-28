@@ -15,7 +15,7 @@ class StateController extends Controller
      */
     public function index()
     {
-        $states = State::latest();
+        $states = State::all();
 
         return response()->json([
             'States' => $states,
@@ -98,16 +98,16 @@ class StateController extends Controller
      */
     public function destroy(State $state)
     {
-        $state->delete();
 
         if($state){
+            $state->delete();
             return response()->json([
-                'message' => 'Error',
+                'message' => 'State deleted successfully',
             ], 400);
         }
 
         return response()->json([
-            'message' => "State deleted successfully",
+            'message' => "Error",
         ], 200);
     }
 }

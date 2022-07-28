@@ -15,7 +15,7 @@ class LocationController extends Controller
      */
     public function index()
     {
-        $locations = Location::latest();
+        $locations = Location::all();
 
         return response()->json([
             'Locations' => $locations,
@@ -102,16 +102,16 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
-        $location->delete();
 
         if($location){
+            $location->delete();
             return response()->json([
-                'message' => 'Error',
+                'message' => 'Location deleted successfully',
             ], 400);
         }
 
         return response()->json([
-            'message' => "Location deleted successfully",
+            'message' => "Error",
         ], 200);
     }
 }
