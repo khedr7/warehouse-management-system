@@ -5,10 +5,13 @@ use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\{
     AuthController,
+    DistributionCenterController,
     LocationController,
     ProductCategoryController,
+    ProductController,
     StateController,
-    StoreCategoryController
+    StoreCategoryController,
+    StoreController
 };
 
 /*
@@ -30,11 +33,16 @@ Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/logout',[AuthController::class,'logout'])->middleware('auth:sanctum');
 
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::apiResource('reviews', ReviewController::class)->only('store');
-// });
+Route::middleware('auth:sanctum')->group(function () {
 
 Route::apiResource('store-category', StoreCategoryController::class);
 Route::apiResource('product-category', ProductCategoryController::class);
 Route::apiResource('state', StateController::class);
-Route::apiResource('Location', LocationController::class);
+Route::apiResource('location', LocationController::class);
+Route::apiResource('product', ProductController::class);
+Route::apiResource('store', StoreController::class);
+Route::apiResource('distribution-centers', DistributionCenterController::class);
+
+});
+
+

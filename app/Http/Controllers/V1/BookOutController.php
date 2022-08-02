@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Models\BookOut;
 use App\Models\SellBillItem;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -73,6 +74,10 @@ class BookOutController extends Controller
             if ($storeProducts && $storeProducts->quantity >= $bookOut->quantity) {
                 $storeProducts->quantity = $storeProducts->quantity - $bookOut->quantity;
                 $storeProducts->save();
+
+                $store = Store::findOrFail($bookOut->store_id);
+                $store->current_capacity = $store->current_capacity - $bookOut->quantity;
+                $store->save();
 
                 if ($bookOut){
                     return response()->json([

@@ -60,7 +60,10 @@ class BookInController extends Controller
                 $sum += $bookIn->quantity;
             }
 
-        if ( ($validation['quantity'] + $sum) <= $fillBillItem->quantity ) {
+        $store = Store::findOrFail($validation['store_id']);
+
+
+        if ( ($validation['quantity'] + $sum) <= $fillBillItem->quantity && ($store->current_capacity + $validation['quantity']) <= $store->capacity) {
 
             $bookIn = BookIn::create($validation);
 
@@ -74,10 +77,19 @@ class BookInController extends Controller
             if ($storeProducts) {
                 $storeProducts->quantity = $storeProducts->quantity + $bookIn->quantity;
                 $storeProducts->save();
+
+                $store = $bookIn->store;
+                $store->current_capacity = $store->current_capacity + $bookIn->quantity;
+                $store->save();
+
+
             }
             else {
                 $store = $bookIn->store;
                 $store->products()->attach($fillOrderItem->product_id);
+
+                $store->current_capacity = $store->current_capacity + $bookIn->quantity;
+                $store->save();
 
                 $storeProducts = DB::table('store_product')->where('store_id', $bookIn->store_id);
                 $storeProducts = $storeProducts->where('product_id', 'like', $fillOrderItem->product_id);

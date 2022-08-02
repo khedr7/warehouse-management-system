@@ -103,11 +103,11 @@ class StateController extends Controller
             $state->delete();
             return response()->json([
                 'message' => 'State deleted successfully',
-            ], 400);
+            ], 200);
         }
 
         return response()->json([
             'message' => "Error",
-        ], 200);
+        ], 400);
     }
 }

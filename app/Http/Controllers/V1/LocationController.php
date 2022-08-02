@@ -51,7 +51,7 @@ class LocationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Location $location
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function show(Location $location)
@@ -102,16 +102,15 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
-
         if($location){
             $location->delete();
             return response()->json([
                 'message' => 'Location deleted successfully',
-            ], 400);
+            ], 200);
         }
 
         return response()->json([
             'message' => "Error",
-        ], 200);
+        ], 400);
     }
 }

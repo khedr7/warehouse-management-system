@@ -15,20 +15,15 @@ class StoreController extends Controller
      */
     public function index()
     {
-        $stores = Store::latest();
+        $stores = Store::all();
 
-        $data = [];
-        $i=0;
-        foreach ($stores as $Store) {
-            $data[$i] = [
-                'Store'       => $Store,
-                'Media Items' => $Store->getMedia('images')
-            ];
-            $i++;
+        foreach ($stores as $store) {
+            $store->getMedia('images');
+
         }
 
         return response()->json([
-            'Store categories' => $data,
+            'Stores' => $stores
         ], 200);
     }
 
@@ -41,18 +36,17 @@ class StoreController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'name'              => 'required|min:2|max:10',
+            'name'              => 'required|min:2|max:20',
             'capacity'          => 'required|numeric',
             'status'            => 'required|boolean',
             'location_id'       => 'required|numeric|exists:locations,id',
-            'store_category_id' => 'required|numeric|exists:storeCategories,id',
-            'images'            => 'required|array',
-            'images.*'          => 'required|file|image',
+            'store_category_id' => 'required|numeric|exists:store_Categories,id',
+            'images'            => 'array',
+            'images.*'          => 'file|image',
         ]);
 
+        $validation['current_capacity'] = $validation['capacity'];
         $store = Store::create($validation);
-        $store->current_capacity = $store->capacity;
-        $store->save();
 
         // add  images to store using media library
         if ($request->hasFile('images')) {
@@ -82,9 +76,9 @@ class StoreController extends Controller
     public function show(Store $store)
     {
         if ($store){
+            $store->getMedia('images');
             return response()->json([
                 'Store'       => $store,
-                'Media Items' => $store->getMedia('images')
             ], 200);
         }
         return response()->json([
@@ -102,12 +96,12 @@ class StoreController extends Controller
     public function update(Request $request, Store $store)
     {
         $validation = $request->validate([
-            'name'              => 'required|min:2|max:10',
+            'name'              => 'required|min:2|max:20',
             'capacity'          => 'required|numeric',
             'status'            => 'required|boolean',
-            'store_category_id' => 'required|numeric|exists:storeCategories,id',
-            'images'            => 'required|array',
-            'images.*'          => 'required|file|image',
+            'store_category_id' => 'required|numeric|exists:store_Categories,id',
+            'images'            => 'array',
+            'images.*'          => 'file|image',
         ]);
 
         $store->name = $validation['name'];
@@ -144,16 +138,15 @@ class StoreController extends Controller
      */
     public function destroy(Store $store)
     {
-        $store->delete();
-
         if($store){
+            $store->delete();
             return response()->json([
-                'message' => 'Error',
-            ], 400);
+                'message' => 'Store deleted successfully',
+            ], 200);
         }
 
         return response()->json([
-            'message' => "Store deleted successfully",
-        ], 200);
+            'message' => "Error",
+        ], 400);
     }
 }

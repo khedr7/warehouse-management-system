@@ -15,20 +15,15 @@ class DistributionCenterController extends Controller
      */
     public function index()
     {
-        $distributionCenters = DistributionCenter::latest();
+        $distributionCenters = DistributionCenter::all();
 
-        $data = [];
-        $i=0;
+
         foreach ($distributionCenters as $distributionCenter) {
-            $data[$i] = [
-                'distributionCenter' => $distributionCenter,
-                'Media Items'        => $distributionCenter->getMedia('images')
-            ];
-            $i++;
+            $distributionCenter->getMedia('images');
         }
 
         return response()->json([
-            'Distribution Centers' => $data,
+            'Distribution Centers' => $distributionCenters,
         ], 200);
     }
 
@@ -41,11 +36,11 @@ class DistributionCenterController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'name'          => 'required|min:2|max:10',
+            'name'          => 'required|min:2|max:20',
             'location_id'   => 'required|numeric|exists:locations,id',
             'user_id'       => 'required|numeric|exists:users,id',
-            'images'        => 'required|array',
-            'images.*'      => 'required|file|image',
+            'images'        => 'array',
+            'images.*'      => 'file|image',
         ]);
 
         $distributionCenter = DistributionCenter::create($validation);
@@ -78,9 +73,9 @@ class DistributionCenterController extends Controller
     public function show(DistributionCenter $distributionCenter)
     {
         if ($distributionCenter){
+            $distributionCenter->getMedia('images');
             return response()->json([
                 'Distribution Center' => $distributionCenter,
-                'Media Items'         => $distributionCenter->getMedia('images')
             ], 200);
         }
         return response()->json([
@@ -98,11 +93,11 @@ class DistributionCenterController extends Controller
     public function update(Request $request, DistributionCenter $distributionCenter)
     {
         $validation = $request->validate([
-            'name'          => 'required|min:2|max:10',
+            'name'          => 'required|min:2|max:20',
             'location_id'   => 'required|numeric|exists:locations,id',
             'user_id'       => 'required|numeric|exists:users,id',
-            'images'        => 'required|array',
-            'images.*'      => 'required|file|image',
+            'images'        => 'array',
+            'images.*'      => 'file|image',
         ]);
 
         $distributionCenter->name = $validation['name'];
@@ -138,16 +133,16 @@ class DistributionCenterController extends Controller
      */
     public function destroy(DistributionCenter $distributionCenter)
     {
-        $distributionCenter->delete();
 
         if($distributionCenter){
+            $distributionCenter->delete();
             return response()->json([
-                'message' => 'Error',
+                'message' => 'Distribution Center deleted successfully',
             ], 400);
         }
 
         return response()->json([
-            'message' => "Distribution Center deleted successfully",
+            'message' => "Error",
         ], 200);
     }
 }

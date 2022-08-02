@@ -15,20 +15,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest();
+        $products = Product::all();
 
-        $data = [];
-        $i=0;
         foreach ($products as $product) {
-            $data[$i] = [
-                'product'     => $product,
-                'Media Items' => $product->getMedia('images')
-            ];
-            $i++;
+            $product->getMedia('images');
         }
 
         return response()->json([
-            'Products' => $data,
+            'Products' => $products,
         ], 200);
     }
 
@@ -41,11 +35,11 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'name'                => 'required|min:2|max:10',
-            'description'         => 'required|min:10|max:100',
-            'product_category_id' => 'required|numeric|exists:productCategories,id',
-            'images'   => 'required|array',
-            'images.*' => 'required|file|image',
+            'name'                => 'required|min:2|max:20',
+            'description'         => 'max:100',
+            'product_category_id' => 'required|numeric|exists:product_Categories,id',
+            'images'              => 'array',
+            'images.*'            => 'file|image',
         ]);
 
         $product = Product::create($validation);
@@ -78,9 +72,9 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         if ($product){
+            $product->getMedia('images');
             return response()->json([
                 'product'     => $product,
-                'Media Items' => $product->getMedia('images')
             ], 200);
         }
 
@@ -99,11 +93,11 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validation = $request->validate([
-            'name'                => 'required|min:2|max:10',
-            'description'         => 'required|min:10|max:100',
-            'product_category_id' => 'required|numeric|exists:productCategories,id',
-            'images'   => 'required|array',
-            'images.*' => 'required|file|image',
+            'name'                => 'required|min:2|max:20',
+            'description'         => 'max:100',
+            'product_category_id' => 'required|numeric|exists:product_Categories,id',
+            'images'              => 'array',
+            'images.*'            => 'file|image',
         ]);
 
         $product->name = $validation['name'];
@@ -140,16 +134,16 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $product->delete();
 
         if($product){
+            $product->delete();
             return response()->json([
-                'message' => 'Error',
-            ], 400);
+                'message' => "The product's category deleted successfully",
+            ], 200);
         }
 
         return response()->json([
-            'message' => "The product's category deleted successfully",
-        ], 200);
+            'message' => "Error",
+        ], 400);
     }
 }
