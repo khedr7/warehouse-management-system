@@ -16,20 +16,15 @@ class FillBillController extends Controller
      */
     public function index()
     {
-        $fillBills = FillBill::latest();
+        $fillBills = FillBill::all();
 
-        $data = [];
-        $i=0;
+
         foreach ($fillBills as $fillBill) {
-            $data[$i] = [
-                'Fill Bill'       => $fillBill,
-                'Fill Bill Items' => $fillBill->fillBillItems
-            ];
-            $i++;
+            $fillBill->fillBillItems;
         }
 
         return response()->json([
-            'Fill Bills' => $data,
+            'Fill Bills' => $fillBills,
         ], 200);
     }
 
@@ -42,8 +37,9 @@ class FillBillController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'description'   => 'max:50',
-            'fill_order_id' => 'required|numeric|exists:fillOrders,id',
+            'number'        => 'required|numeric',
+            'description'   => 'max:100',
+            'fill_order_id' => 'required|numeric|exists:fill_Orders,id',
             'fillBillItems' => 'required|array'
         ]);
         $fillBill = FillBill::create($validation);
@@ -68,6 +64,13 @@ class FillBillController extends Controller
         }
 
         // checking the creation
+        if (count($fillBill->fillBillItems) == 0) {
+            $fillBill->delete();
+            return response()->json([
+                'message' => "Error: No Items ",
+            ], 400);
+        }
+
         if ($fillBill){
             return response()->json([
                 'message' => "Fill Bill created successfully",
@@ -88,9 +91,9 @@ class FillBillController extends Controller
     public function show(FillBill $fillBill)
     {
         if ($fillBill){
+            $fillBill->fillBillItems;
             return response()->json([
                 'Fill Bill'       => $fillBill,
-                'Fill Bill Items' => $fillBill->fillBillItems
             ], 200);
         }
         return response()->json([
@@ -119,5 +122,32 @@ class FillBillController extends Controller
     public function destroy(FillBill $fillBill)
     {
         //
+    }
+
+    public function fillBillWithNoFullBookIn()
+    {
+        $fillBills = FillBill::all();
+
+        $a = [];
+        foreach ($fillBills as $fillBill) {
+            $s = 0;
+            $fillBill->fillBillItems;
+            foreach ($fillBill->fillBillItems as $fillBillItem) {
+                $sum = 0;
+                foreach ($fillBillItem->bookIns as $bookIn) {
+                    $sum += $bookIn->quantity;
+                }
+                if ($sum !== $fillBillItem->quantity){
+                    $s++;
+                }
+            }
+            if ($s !== 0) {
+                array_push($a, $fillBill);
+            }
+        }
+
+        return response()->json([
+            'Fill Bills' => $a,
+        ], 200);
     }
 }

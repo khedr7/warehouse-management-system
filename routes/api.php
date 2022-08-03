@@ -5,10 +5,14 @@ use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\{
     AuthController,
+    BookInController,
     DistributionCenterController,
+    FillBillController,
+    FillOrderController,
     LocationController,
     ProductCategoryController,
     ProductController,
+    SellOrderController,
     StateController,
     StoreCategoryController,
     StoreController
@@ -42,6 +46,12 @@ Route::apiResource('location', LocationController::class);
 Route::apiResource('product', ProductController::class);
 Route::apiResource('store', StoreController::class);
 Route::apiResource('distribution-centers', DistributionCenterController::class);
+Route::get('fill-order/no-bills', [FillOrderController::class, 'fillOrderWithNoBill']);
+Route::apiResource('fill-order', FillOrderController::class);
+Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
+Route::apiResource('fill-bill', FillBillController::class);
+Route::apiResource('book-in', BookInController::class);
+Route::apiResource('sell-order', SellOrderController::class);
 
 });
 

@@ -45,7 +45,7 @@ class StoreController extends Controller
             'images.*'          => 'file|image',
         ]);
 
-        $validation['current_capacity'] = $validation['capacity'];
+        $validation['current_capacity'] = 0;
         $store = Store::create($validation);
 
         // add  images to store using media library

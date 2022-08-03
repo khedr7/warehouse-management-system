@@ -17,20 +17,14 @@ class FillOrderController extends Controller
      */
     public function index()
     {
-        $fillOrders = FillOrder::latest();
+        $fillOrders = FillOrder::all();
 
-        $data = [];
-        $i=0;
         foreach ($fillOrders as $fillOrder) {
-            $data[$i] = [
-                'Fill Order'       => $fillOrder,
-                'Fill Order Items' => $fillOrder->fillOrderItems
-            ];
-            $i++;
+            $fillOrder->fillOrderItems;
         }
 
         return response()->json([
-            'Fill orders' => $data,
+            'Fill orders' => $fillOrders,
         ], 200);
     }
 
@@ -43,7 +37,7 @@ class FillOrderController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'description'    => 'max:50',
+            'description'    => 'max:100',
             'fillOrderItems' => 'required|array'
         ]);
         $validation['user_id'] = Auth::id();
@@ -79,9 +73,10 @@ class FillOrderController extends Controller
     public function show(FillOrder $fillOrder)
     {
         if ($fillOrder){
+            $fillOrder->fillOrderItems;
+
             return response()->json([
                 'Fill order'       => $fillOrder,
-                'Fill Order Items' => $fillOrder->fillOrderItems
             ], 200);
         }
         return response()->json([
@@ -102,7 +97,7 @@ class FillOrderController extends Controller
         if (count($fillOrder->fillBills) == 0 && $date > now() && $fillOrder->user_id == Auth::id()) {
 
             $validation = $request->validate([
-                'description'    => 'max:50',
+                'description'    => 'max:100',
                 'fillOrderItems' => 'required|array'
             ]);
 
@@ -142,18 +137,47 @@ class FillOrderController extends Controller
         $date = Carbon::parse($fillOrder->created_at)->addHours(3);
         if (count($fillOrder->fillBills) == 0 && $date > now() && $fillOrder->user_id == Auth::id()) {
 
-            $fillOrder->fillOrderItems()->delete();
-            $fillOrder->delete();
-
             if($fillOrder){
+
+                $fillOrder->fillOrderItems()->delete();
+                $fillOrder->delete();
+
                 return response()->json([
-                    'message' => 'Error',
-                ], 400);
+                    'message' => 'Fill Order deleted successfully',
+                ], 200);
             }
 
             return response()->json([
-                'message' => "Fill Order deleted successfully",
-            ], 200);
+                'message' => "Erroe",
+            ], 400);
         }
+    }
+
+    public function fillOrderWithNoBill()
+    {
+        $fillOrders = FillOrder::all();
+
+        $a = [];
+        foreach ($fillOrders as $fillOrder) {
+            $s = 0;
+            $fillOrder->fillOrderItems;
+
+            foreach ($fillOrder->fillOrderItems as $fillOrderItem) {
+                $sum = 0;
+                foreach ($fillOrderItem->fillBillItems as $fillBillItem) {
+                    $sum += $fillBillItem->quantity;
+                }
+                if ($sum !== $fillOrderItem->quantity){
+                    $s++;
+                }
+            }
+            if ($s !== 0) {
+                array_push($a, $fillOrder);
+            }
+        }
+
+        return response()->json([
+            'Fill orders with no bills' => $a,
+        ], 200);
     }
 }

@@ -18,23 +18,16 @@ class BookInController extends Controller
      */
     public function index()
     {
-        $bookIns = BookIn::latest();
+        $bookIns = BookIn::all();
 
-        $data = [];
-        $i=0;
         foreach ($bookIns as $bookIn) {
             $fillBillItem  = $bookIn->fillBillItem;
-            $fillOrderItem = $fillBillItem->fillOrderItem;
+            $fillBillItem->fillOrderItem;
 
-            $data[$i] = [
-                'BookIn'     => $bookIn,
-                'product_id' => $fillOrderItem->product_id
-            ];
-            $i++;
         }
 
         return response()->json([
-            'BookIns' => $data,
+            'BookIns' => $bookIns,
         ], 200);
     }
 
@@ -47,8 +40,8 @@ class BookInController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'store_id'          => 'required|numeric|exists:users,id',
-            'fill_bill_item_id' => 'required|numeric|exists:fillBillItems,id',
+            'store_id'          => 'required|numeric|exists:stores,id',
+            'fill_bill_item_id' => 'required|numeric|exists:fill_Bill_Items,id',
             'date'              => 'required|date',
             'quantity'          => 'required|numeric'
         ]);
@@ -56,8 +49,8 @@ class BookInController extends Controller
         $fillBillItem = FillBillItem::findOrFail($validation['fill_bill_item_id']);
         $bookIns = $fillBillItem->bookIns;
         $sum = 0;
-            foreach ($bookIns as $bookIn) {
-                $sum += $bookIn->quantity;
+            foreach ($bookIns as $bIn) {
+                $sum += $bIn->quantity;
             }
 
         $store = Store::findOrFail($validation['store_id']);
@@ -67,43 +60,48 @@ class BookInController extends Controller
 
             $bookIn = BookIn::create($validation);
 
-            $storeProducts = DB::table('store_product')->where('store_id', $bookIn->store_id);
-
             $fillBillItem = $bookIn->fillBillItem;
             $fillOrderItem = $fillBillItem->fillOrderItem;
 
-            $storeProducts = $storeProducts->where('product_id', 'like', $fillOrderItem->product_id);
+            $storeProducts = DB::table('store_product')->select('store_product.*')->where([
+                                                                                            ['store_id'  , '=', $bookIn->store_id],
+                                                                                            ['product_id', '=', $fillOrderItem->product_id]
+                                                                                ])->first();
+
+
 
             if ($storeProducts) {
-                $storeProducts->quantity = $storeProducts->quantity + $bookIn->quantity;
-                $storeProducts->save();
+                DB::table('store_product')->select('store_product.*')->where([
+                    ['store_id'  , '=', $bookIn->store_id],
+                    ['product_id', '=', $fillOrderItem->product_id]
+               ])->limit(1)
+                ->update(array('quantity' => DB::raw('quantity +'. $bookIn->quantity)));
+
+                // $storeProducts->increment('quantity', $bookIn->quantity);
 
                 $store = $bookIn->store;
                 $store->current_capacity = $store->current_capacity + $bookIn->quantity;
                 $store->save();
+
 
 
             }
             else {
                 $store = $bookIn->store;
-                $store->products()->attach($fillOrderItem->product_id);
+                $store->products()->attach($fillOrderItem->product_id, ['quantity' => $bookIn->quantity]);
 
                 $store->current_capacity = $store->current_capacity + $bookIn->quantity;
                 $store->save();
 
-                $storeProducts = DB::table('store_product')->where('store_id', $bookIn->store_id);
-                $storeProducts = $storeProducts->where('product_id', 'like', $fillOrderItem->product_id);
+            }
 
-                $storeProducts->quantity = $bookIn->quantity;
-                $storeProducts->save();
+            if ($bookIn){
+                return response()->json([
+                    'message' => 'book in created successfully',
+                ], 201);
             }
         }
 
-        if ($bookIn){
-            return response()->json([
-                'message' => "BookIn created successfully",
-            ], 201);
-        }
         return response()->json([
             'message' => 'Error',
         ], 400);
@@ -123,7 +121,6 @@ class BookInController extends Controller
 
             return response()->json([
                 'Bookin'     => $bookIn,
-                'product_id' => $fillOrderItem->product_id
             ], 200);
         }
         return response()->json([
