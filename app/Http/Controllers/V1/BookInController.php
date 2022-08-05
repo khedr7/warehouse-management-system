@@ -77,8 +77,6 @@ class BookInController extends Controller
                ])->limit(1)
                 ->update(array('quantity' => DB::raw('quantity +'. $bookIn->quantity)));
 
-                // $storeProducts->increment('quantity', $bookIn->quantity);
-
                 $store = $bookIn->store;
                 $store->current_capacity = $store->current_capacity + $bookIn->quantity;
                 $store->save();
