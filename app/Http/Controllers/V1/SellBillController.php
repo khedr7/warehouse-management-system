@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\FillOrderItem;
 use App\Models\SellBill;
 use App\Models\SellOrderItem;
 use Illuminate\Http\Request;
@@ -17,20 +18,14 @@ class SellBillController extends Controller
      */
     public function index()
     {
-        $sellBills = SellBill::latest();
+        $sellBills = SellBill::all();
 
-        $data = [];
-        $i=0;
         foreach ($sellBills as $sellBill) {
-            $data[$i] = [
-                'Sell Bill'       => $sellBill,
-                'Sell Bill Items' => $sellBill->sellBillItems
-            ];
-            $i++;
+            $sellBill->sellBillItems;
         }
 
         return response()->json([
-            'Sell Bills' => $data,
+            'Sell Bills' => $sellBills,
         ], 200);
     }
 
@@ -44,8 +39,8 @@ class SellBillController extends Controller
     {
         $validation = $request->validate([
             'number'   => 'required|numeric',
-            'description'   => 'max:50',
-            'Sell_order_id' => 'required|numeric|exists:sellOrders,id',
+            'description'   => 'max:100',
+            'sell_order_id' => 'required|numeric|exists:sell_Orders,id',
             'sellBillItems' => 'required|array'
         ]);
         $sellBill = SellBill::create($validation);
@@ -59,8 +54,9 @@ class SellBillController extends Controller
                 $sum += $sbItem->quantity;
             }
 
-            $fillOrderItem = DB::table('sell_order_items')->where('product_id', $sellOrderItem->product_id)->latest()->first();
-            $fillBillItem  = $fillOrderItem->fillBillItems()->latest()->first();
+            $fillOrderItem = DB::table('fill_order_items')->where('product_id', $sellOrderItem->product_id)->latest()->first();
+            $id  = $fillOrderItem->id;
+            $fillBillItem  = DB::table('fill_bill_items')->where('fill_order_item_id', $id)->latest()->first();
 
             if ( ($sellBillItem['quantity'] + $sum) <= $sellOrderItem->quantity ){
 
@@ -74,6 +70,13 @@ class SellBillController extends Controller
         }
 
         // checking the creation
+        if (count($sellBill->sellBillItems) == 0) {
+            $sellBill->delete();
+            return response()->json([
+                'message' => "Error: No Items ",
+            ], 400);
+        }
+
         if ($sellBill){
             return response()->json([
                 'message' => "sell Bill created successfully",
@@ -93,9 +96,9 @@ class SellBillController extends Controller
     public function show(SellBill $sellBill)
     {
         if ($sellBill){
+            $sellBill->sellBillItems;
             return response()->json([
                 'Sell Bill'       => $sellBill,
-                'Sell Bill Items' => $sellBill->sellBillItems
             ], 200);
         }
         return response()->json([
@@ -124,5 +127,32 @@ class SellBillController extends Controller
     public function destroy(SellBill $sellBill)
     {
         //
+    }
+
+    public function sellBillWithNoFullBookOut()
+    {
+        $sellBills = SellBill::all();
+
+        $a = [];
+        foreach ($sellBills as $sellBill) {
+            $s = 0;
+            $sellBill->sellBillItems;
+            foreach ($sellBill->sellBillItems as $sellBillItem) {
+                $sum = 0;
+                foreach ($sellBillItem->bookOuts as $bookOut) {
+                    $sum += $bookOut->quantity;
+                }
+                if ($sum !== $sellBillItem->quantity){
+                    $s++;
+                }
+            }
+            if ($s !== 0) {
+                array_push($a, $sellBill);
+            }
+        }
+
+        return response()->json([
+            'Sell Bills' => $a,
+        ], 200);
     }
 }

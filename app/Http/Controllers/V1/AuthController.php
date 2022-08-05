@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Store;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,12 +21,16 @@ class AuthController extends Controller
             'lname'    => 'required',
             'email'    => 'required|email',
             'password' => 'required',
-            'phone'    => 'required'
+            'phone'    => 'required',
+            'store_id' => 'exists:stores,id'
         ]);
 
         $validation['password'] = bcrypt($validation['password']);
         $user = User::create($validation);
         $token = $user->createToken('auth');
+        if ($request->hasFile('store_id')) {
+            $user->stores()->attach($validation['store_id']);
+        }
             return [
                 'message' => 'User successfully registered!',
                 'data'    => [

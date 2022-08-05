@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\{
     AuthController,
     BookInController,
+    BookOutController,
     DistributionCenterController,
     FillBillController,
     FillOrderController,
@@ -13,6 +14,7 @@ use App\Http\Controllers\V1\{
     ProductCategoryController,
     ProductController,
     ProfileController,
+    SellBillController,
     SellOrderController,
     StateController,
     StoreCategoryController,
@@ -55,7 +57,11 @@ Route::apiResource('fill-order', FillOrderController::class);
 Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
 Route::apiResource('fill-bill', FillBillController::class);
 Route::apiResource('book-in', BookInController::class);
+Route::get('sell-order/no-bills', [SellOrderController::class, 'sellOrderWithNoBill']);
 Route::apiResource('sell-order', SellOrderController::class);
+Route::get('sell-bill/no-bookOuts', [SellBillController::class, 'sellBillWithNoFullBookOut']);
+Route::apiResource('sell-bill', SellBillController::class);
+Route::apiResource('book-out', BookOutController::class);
 
 });
 

@@ -18,23 +18,15 @@ class BookOutController extends Controller
      */
     public function index()
     {
-        $bookOuts = BookOut::latest();
+        $bookOuts = BookOut::all();
 
-        $data = [];
-        $i=0;
         foreach ($bookOuts as $bookOut) {
             $sellBillItem  = $bookOut->sellBillItem;
             $sellOrderItem = $sellBillItem->fillOrderItem;
-
-            $data[$i] = [
-                'BookOut'    => $bookOut,
-                'product_id' => $sellOrderItem->product_id
-            ];
-            $i++;
         }
 
         return response()->json([
-            'BookOuts' => $data,
+            'BookOuts' => $bookOuts,
         ], 200);
     }
 
@@ -47,8 +39,8 @@ class BookOutController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'store_id'          => 'required|numeric|exists:users,id',
-            'sell_bill_item_id' => 'required|numeric|exists:sellBillItems,id',
+            'store_id'          => 'required|numeric|exists:stores,id',
+            'sell_bill_item_id' => 'required|numeric|exists:sell_Bill_Items,id',
             'date'              => 'required|date',
             'quantity'          => 'required|numeric'
         ]);
@@ -56,24 +48,29 @@ class BookOutController extends Controller
         $sellBillItem = SellBillItem::findOrFail($validation['sell_bill_item_id']);
         $bookOuts = $sellBillItem->bookOuts;
         $sum = 0;
-            foreach ($bookOuts as $bookOut) {
-                $sum += $bookOut->quantity;
+            foreach ($bookOuts as $bOut) {
+                $sum += $bOut->quantity;
             }
 
         if ( ($validation['quantity'] + $sum) <= $sellBillItem->quantity ) {
 
             $bookOut = BookOut::create($validation);
 
-            $storeProducts = DB::table('store_product')->where('store_id', $bookOut->store_id);
-
             $sellBillItem = $bookOut->sellBillItem;
             $sellOrderItem = $sellBillItem->sellOrderItem;
 
-            $storeProducts = $storeProducts->where('product_id', 'like', $sellOrderItem->product_id);
+            $storeProducts = DB::table('store_product')->select('store_product.*')->where([
+                                                                                        ['store_id'  , '=', $bookOut->store_id],
+                                                                                        ['product_id', '=', $sellOrderItem->product_id]
+                                                                                ])->first();
+
 
             if ($storeProducts && $storeProducts->quantity >= $bookOut->quantity) {
-                $storeProducts->quantity = $storeProducts->quantity - $bookOut->quantity;
-                $storeProducts->save();
+                DB::table('store_product')->select('store_product.*')->where([
+                    ['store_id'  , '=', $bookOut->store_id],
+                    ['product_id', '=', $sellOrderItem->product_id]
+               ])->limit(1)
+                ->update(array('quantity' => DB::raw('quantity -'. $bookOut->quantity)));
 
                 $store = Store::findOrFail($bookOut->store_id);
                 $store->current_capacity = $store->current_capacity - $bookOut->quantity;
@@ -104,11 +101,10 @@ class BookOutController extends Controller
     {
         if ($bookOut){
             $sellBillItem  = $bookOut->sellBillItem;
-            $sellOrderItem = $sellBillItem->fillOrderItem;
+            $sellOrderItem = $sellBillItem->sellOrderItem;
 
             return response()->json([
                 'Bookin'     => $bookOut,
-                'product_id' => $sellOrderItem->product_id
             ], 200);
         }
         return response()->json([

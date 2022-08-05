@@ -18,20 +18,14 @@ class SellOrderController extends Controller
      */
     public function index()
     {
-        $sellOrders = SellOrder::latest();
+        $sellOrders = SellOrder::all();
 
-        $data = [];
-        $i=0;
         foreach ($sellOrders as $sellOrder) {
-            $data[$i] = [
-                'sell Order'       => $sellOrder,
-                'sell Order Items' => $sellOrder->sellOrderItems
-            ];
-            $i++;
+            $sellOrder->sellOrderItems;
         }
 
         return response()->json([
-            'sell orders' => $data,
+            'sell orders' => $sellOrders,
         ], 200);
     }
 
@@ -44,12 +38,12 @@ class SellOrderController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'description'    => 'max:50',
+            'description'    => 'max:100',
             'sellOrderItems' => 'required|array'
         ]);
         $user_id = Auth::id();
         $distributionCenters = DistributionCenter::all();
-        $distributionCenter = $distributionCenters->where('user_id', 'like', $user_id)/*->first()*/;
+        $distributionCenter = $distributionCenters->where('user_id', 'like', $user_id)->first();
         $validation['distribution_center_id'] = $distributionCenter->id;
 
         $sellOrder = SellOrder::create($validation);
@@ -82,9 +76,10 @@ class SellOrderController extends Controller
     public function show(SellOrder $sellOrder)
     {
         if ($sellOrder){
+            $sellOrder->sellOrderItems;
+
             return response()->json([
-                'Sell order'       => $sellOrder,
-                'Sell Order Items' => $sellOrder->sellOrderItems
+                'Sell order' => $sellOrder,
             ], 200);
         }
         return response()->json([
@@ -103,13 +98,13 @@ class SellOrderController extends Controller
     {
         $user_id = Auth::id();
         $distributionCenters = DistributionCenter::all();
-        $distributionCenter = $distributionCenters->where('user_id', 'like', $user_id)/*->first()*/;
+        $distributionCenter = $distributionCenters->where('user_id', 'like', $user_id)->first();
 
         $date = Carbon::parse($sellOrder->created_at)->addHours(3);
         if (count($sellOrder->sellBills) == 0 && $date > now() && $sellOrder->distribution_center_id == $distributionCenter->id) {
 
             $validation = $request->validate([
-                'description'    => 'max:50',
+                'description'    => 'max:100',
                 'sellOrderItems' => 'required|array'
             ]);
 
@@ -148,23 +143,52 @@ class SellOrderController extends Controller
     {
         $user_id = Auth::id();
         $distributionCenters = DistributionCenter::all();
-        $distributionCenter = $distributionCenters->where('user_id', 'like', $user_id)/*->first()*/;
+        $distributionCenter = $distributionCenters->where('user_id', 'like', $user_id)->first();
 
         $date = Carbon::parse($sellOrder->created_at)->addHours(3);
         if (count($sellOrder->sellBills) == 0 && $date > now() && $sellOrder->distribution_center_id == $distributionCenter->id) {
 
-            $sellOrder->sellOrderItems()->delete();
-            $sellOrder->delete();
-
             if($sellOrder){
+
+                $sellOrder->sellOrderItems()->delete();
+                $sellOrder->delete();
+
                 return response()->json([
-                    'message' => 'Error',
-                ], 400);
+                    'message' => 'sell Order deleted successfully',
+                ], 200);
             }
 
             return response()->json([
-                'message' => "sell Order deleted successfully",
-            ], 200);
+                'message' => "Error",
+            ], 400);
         }
+    }
+
+    public function sellOrderWithNoBill()
+    {
+        $sellOrders = SellOrder::all();
+
+        $a = [];
+        foreach ($sellOrders as $sellOrder) {
+            $s = 0;
+            $sellOrder->sellOrderItems;
+
+            foreach ($sellOrder->sellOrderItems as $sellOrderItem) {
+                $sum = 0;
+                foreach ($sellOrderItem->sellBillItems as $sellBillItem) {
+                    $sum += $sellBillItem->quantity;
+                }
+                if ($sum !== $sellOrderItem->quantity){
+                    $s++;
+                }
+            }
+            if ($s !== 0) {
+                array_push($a, $sellOrder);
+            }
+        }
+
+        return response()->json([
+            'Sell orders with no bills' => $a,
+        ], 200);
     }
 }

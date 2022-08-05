@@ -76,7 +76,7 @@ class FillOrderController extends Controller
             $fillOrder->fillOrderItems;
 
             return response()->json([
-                'Fill order'       => $fillOrder,
+                'Fill order' => $fillOrder,
             ], 200);
         }
         return response()->json([
@@ -148,7 +148,7 @@ class FillOrderController extends Controller
             }
 
             return response()->json([
-                'message' => "Erroe",
+                'message' => "Error",
             ], 400);
         }
     }
