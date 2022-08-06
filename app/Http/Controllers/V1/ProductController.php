@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -72,7 +73,24 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         if ($product){
+
+            $fillOrderItem = DB::table('fill_order_items')->where('product_id', $product->id)->latest()->first();
+            $id  = $fillOrderItem->id;
+            $fillBillItem  = DB::table('fill_bill_items')->where('fill_order_item_id', $id)->latest()->first();
+
             $product->getMedia('images');
+
+            $product->stores;
+
+            foreach ($product->stores as $store) {
+                $storeProduct = DB::table('store_product')->select('store_product.*')->where([
+                    ['store_id'  , '=', $store->id],
+                    ['product_id', '=', $product->id]
+            ])->first();
+                $store->quantity = $storeProduct->quantity;
+            }
+
+            $product->price = $fillBillItem->price;
             return response()->json([
                 'product'     => $product,
             ], 200);

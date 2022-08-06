@@ -39,22 +39,30 @@ class BookOutController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'store_id'          => 'required|numeric|exists:stores,id',
-            'sell_bill_item_id' => 'required|numeric|exists:sell_Bill_Items,id',
-            'date'              => 'required|date',
-            'quantity'          => 'required|numeric'
+            'book_outs'         => 'required|array',
         ]);
 
-        $sellBillItem = SellBillItem::findOrFail($validation['sell_bill_item_id']);
+        $number = 0;
+        foreach ($validation['book_outs'] as $book_out) {
+
+
+        $sellBillItem = SellBillItem::findOrFail($book_out['sell_bill_item_id']);
         $bookOuts = $sellBillItem->bookOuts;
         $sum = 0;
             foreach ($bookOuts as $bOut) {
                 $sum += $bOut->quantity;
             }
 
-        if ( ($validation['quantity'] + $sum) <= $sellBillItem->quantity ) {
+        if ( ($book_out['quantity'] + $sum) <= $sellBillItem->quantity ) {
 
-            $bookOut = BookOut::create($validation);
+            $bookOut = BookOut::create([
+                'store_id'          => $book_out['store_id'],
+                'sell_bill_item_id' => $book_out['sell_bill_item_id'],
+                'date'              => $book_out['date'],
+                'quantity'          => $book_out['quantity'],
+            ]);
+
+            $number++;
 
             $sellBillItem = $bookOut->sellBillItem;
             $sellOrderItem = $sellBillItem->sellOrderItem;
@@ -63,7 +71,6 @@ class BookOutController extends Controller
                                                                                         ['store_id'  , '=', $bookOut->store_id],
                                                                                         ['product_id', '=', $sellOrderItem->product_id]
                                                                                 ])->first();
-
 
             if ($storeProducts && $storeProducts->quantity >= $bookOut->quantity) {
                 DB::table('store_product')->select('store_product.*')->where([
@@ -76,19 +83,33 @@ class BookOutController extends Controller
                 $store->current_capacity = $store->current_capacity - $bookOut->quantity;
                 $store->save();
 
-                if ($bookOut){
-                    return response()->json([
-                        'message' => "BookOut created successfully",
-                    ], 201);
-                }
             }
             else {
-                return response()->json([
-                    'message' => 'Error',
-                ], 400);
-
+            $bookOut->delete();
+            $number--;
             }
         }
+
+        if ($number = count($validation['book_outs'])) {
+            return response()->json([
+                'message' => "done",
+            ], 200);
+        }
+        elseif ($number = 0) {
+            return response()->json([
+                'message' => "Error: No Items ",
+            ], 400);
+        }
+        else {
+            return response()->json([
+                'message' => "uncomplited",
+            ], 200);
+        }
+
+
+
+    }
+
     }
 
     /**

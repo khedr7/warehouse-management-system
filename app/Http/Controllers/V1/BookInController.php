@@ -40,70 +40,84 @@ class BookInController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
+            'book_ins'          => 'required|array',
             'store_id'          => 'required|numeric|exists:stores,id',
             'fill_bill_item_id' => 'required|numeric|exists:fill_Bill_Items,id',
             'date'              => 'required|date',
             'quantity'          => 'required|numeric'
         ]);
 
-        $fillBillItem = FillBillItem::findOrFail($validation['fill_bill_item_id']);
-        $bookIns = $fillBillItem->bookIns;
-        $sum = 0;
-            foreach ($bookIns as $bIn) {
-                $sum += $bIn->quantity;
-            }
+        $number = 0;
+        foreach ($validation['book_ins'] as $book_in) {
 
-        $store = Store::findOrFail($validation['store_id']);
+            $fillBillItem = FillBillItem::findOrFail($book_in['fill_bill_item_id']);
+            $bookIns = $fillBillItem->bookIns;
+            $sum = 0;
+                foreach ($bookIns as $bIn) {
+                    $sum += $bIn->quantity;
+                }
+
+            $store = Store::findOrFail($book_in['store_id']);
 
 
-        if ( ($validation['quantity'] + $sum) <= $fillBillItem->quantity && ($store->current_capacity + $validation['quantity']) <= $store->capacity) {
+            if ( ($book_in['quantity'] + $sum) <= $fillBillItem->quantity && ($store->current_capacity + $book_in['quantity']) <= $store->capacity) {
 
-            $bookIn = BookIn::create($validation);
+                $bookIn = BookIn::create([
+                    'store_id'          => $book_in['store_id'],
+                    'fill_bill_item_id' => $book_in['fill_bill_item_id'],
+                    'date'              => $book_in['date'],
+                    'quantity'          => $book_in['quantity'],
+                ]);
 
-            $fillBillItem = $bookIn->fillBillItem;
-            $fillOrderItem = $fillBillItem->fillOrderItem;
+                $number++;
 
-            $storeProducts = DB::table('store_product')->select('store_product.*')->where([
+                $fillBillItem = $bookIn->fillBillItem;
+                $fillOrderItem = $fillBillItem->fillOrderItem;
+
+                $storeProducts = DB::table('store_product')->select('store_product.*')->where([
                                                                                             ['store_id'  , '=', $bookIn->store_id],
                                                                                             ['product_id', '=', $fillOrderItem->product_id]
                                                                                 ])->first();
 
 
 
-            if ($storeProducts) {
-                DB::table('store_product')->select('store_product.*')->where([
-                    ['store_id'  , '=', $bookIn->store_id],
-                    ['product_id', '=', $fillOrderItem->product_id]
-               ])->limit(1)
-                ->update(array('quantity' => DB::raw('quantity +'. $bookIn->quantity)));
+                if ($storeProducts) {
+                    DB::table('store_product')->select('store_product.*')->where([
+                        ['store_id'  , '=', $bookIn->store_id],
+                        ['product_id', '=', $fillOrderItem->product_id]
+                    ])->limit(1)
+                    ->update(array('quantity' => DB::raw('quantity +'. $bookIn->quantity)));
 
-                $store = $bookIn->store;
-                $store->current_capacity = $store->current_capacity + $bookIn->quantity;
-                $store->save();
+                    $store = $bookIn->store;
+                    $store->current_capacity = $store->current_capacity + $bookIn->quantity;
+                    $store->save();
 
 
 
-            }
-            else {
-                $store = $bookIn->store;
-                $store->products()->attach($fillOrderItem->product_id, ['quantity' => $bookIn->quantity]);
+                }
+                else {
+                    $store = $bookIn->store;
+                    $store->products()->attach($fillOrderItem->product_id, ['quantity' => $bookIn->quantity]);
 
-                $store->current_capacity = $store->current_capacity + $bookIn->quantity;
-                $store->save();
-
-            }
-
-            if ($bookIn){
-                return response()->json([
-                    'message' => 'book in created successfully',
-                ], 201);
+                    $store->current_capacity = $store->current_capacity + $bookIn->quantity;
+                    $store->save();
+                }
             }
         }
 
-        return response()->json([
-            'message' => 'Error',
-        ], 400);
+        if ($number = count($validation['book_outs'])) {
+            return response()->json([
+                'message' => "done",
+            ], 200);
+        }
+        else {
+            return response()->json([
+                'message' => "uncomplited",
+            ], 200);
+        }
+
     }
+
 
         /**
          * Display the specified resource.
