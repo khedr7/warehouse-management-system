@@ -41,10 +41,6 @@ class BookInController extends Controller
     {
         $validation = $request->validate([
             'book_ins'          => 'required|array',
-            'store_id'          => 'required|numeric|exists:stores,id',
-            'fill_bill_item_id' => 'required|numeric|exists:fill_Bill_Items,id',
-            'date'              => 'required|date',
-            'quantity'          => 'required|numeric'
         ]);
 
         $number = 0;
