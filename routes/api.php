@@ -13,6 +13,7 @@ use App\Http\Controllers\V1\{
     LocationController,
     ProductCategoryController,
     ProductController,
+    ProfileController,
     SellBillController,
     SellOrderController,
     StateController,
@@ -40,6 +41,9 @@ Route::post('/login',[AuthController::class,'login']);
 Route::post('/logout',[AuthController::class,'logout'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
+
+Route::get('users-info', [ProfileController::class, 'profiles']);
+Route::get('user-profile', [ProfileController::class, 'myprofile']);
 
 Route::apiResource('store-category', StoreCategoryController::class);
 Route::apiResource('product-category', ProductCategoryController::class);
