@@ -28,7 +28,7 @@ class PermissionsSeeder extends Seeder
         ]);
 
         $Accountant = Role::create([
-            'name'     => 'warehouseManger'
+            'name'     => 'Accountant'
         ]);
     }
 }
