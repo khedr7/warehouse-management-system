@@ -39,114 +39,82 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login',[AuthController::class,'login']);
 Route::post('/logout',[AuthController::class,'logout'])->middleware('auth:sanctum');
 
-Route::middleware('auth:sanctum','role:superAdmin')->group(function () {
+/**
+ *    sharing routes between all users
+ */
 
-    Route::post('/register',[AuthController::class,'register']);
-    Route::get('users-info', [ProfileController::class, 'profiles']);
+Route::middleware('auth:sanctum','role:superAdmin|distributionCenter|warehouseManger|Accountant')->group(function () {
     Route::get('user-profile', [ProfileController::class, 'myprofile']);
+    Route::apiResource('product-category', ProductCategoryController::class)->only(['index', 'show']);
+    Route::apiResource('product', ProductController::class)->only(['index', 'show']);
+    Route::apiResource('sell-bill', SellBillController::class)->only(['show']);
+});
+
+/**
+ * sharing routes between superadmin and Accountant
+ */
+
+Route::middleware('auth:sanctum','role:superAdmin|Accountant')->group(function () {
+    Route::get('users-info', [ProfileController::class, 'profiles']);
+    Route::apiResource('product-category', ProductCategoryController::class)->except(['index','show']);
+    Route::apiResource('product', ProductController::class)->except(['index','show']);
+    Route::apiResource('fill-order', FillOrderController::class)->only(['index']);
+    Route::apiResource('fill-bill', FillBillController::class)->except(['index', 'show']);
+    Route::get('fill-order/no-bills', [FillOrderController::class, 'fillOrderWithNoBill']);
+    Route::apiResource('sell-order', SellOrderController::class)->only(['index']);
+    Route::get('sell-order/no-bills', [SellOrderController::class, 'sellOrderWithNoBill']);
+    Route::apiResource('sell-bill', SellBillController::class)->except(['index','show']);
+});
+
+/**
+ *  sharing routes between superadmin and warehouseManger
+ */
+Route::middleware('auth:sanctum','role:superAdmin|warehouseManger')->group(function () {
+    Route::apiResource('book-in', BookInController::class)->except(['index', 'show']);
+    Route::apiResource('book-out', BookOutController::class)->except(['index', 'show']);
+});
 
 
 
-    Route::apiResource('store-category', StoreCategoryController::class);
-    Route::apiResource('product-category', ProductCategoryController::class);
+/**
+ *       sharing routes between superadmin and Accountant and warehouseManger
+ */
+Route::middleware('auth:sanctum','role:superAdmin|Accountant|warehouseManger')->group(function () {
+    Route::apiResource('distribution-centers', DistributionCenterController::class)->only(['index','show']);
+    Route::apiResource('store-category', StoreCategoryController::class)->only(['index', 'show']);
+    Route::apiResource('store', StoreController::class)->only(['index', 'show']);
+    Route::apiResource('fill-order', FillOrderController::class)->except(['index']);
+    Route::apiResource('fill-bill', FillBillController::class)->only(['index', 'show']);
+    Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
+    Route::apiResource('book-in', BookInController::class)->only(['index', 'show']);
+    Route::apiResource('sell-bill', SellBillController::class)->only(['index']);
+    Route::get('sell-bill/no-bookOuts', [SellBillController::class, 'sellBillWithNoFullBookOut']);
+    Route::apiResource('book-out', BookOutController::class)->only(['index', 'show']);
+});
+
+/**
+ *        sharing routes between superadmin and Accountant and distributionCenter
+
+ */
+Route::middleware('auth:sanctum','role:superAdmin|Accountant|distributionCenter')->group(function () {
+    Route::apiResource('sell-order', SellOrderController::class)->only(['show']);
+});
+
+/**
+ *    routes for super admin
+ */
+Route::middleware('auth:sanctum','role:superAdmin')->group(function () {
+    Route::post('/register',[AuthController::class,'register']);
+    Route::apiResource('store-category', StoreCategoryController::class)->except(['index','show']);
+    Route::apiResource('store', StoreController::class)->except(['index', 'show']);
     Route::apiResource('state', StateController::class);
     Route::apiResource('location', LocationController::class);
-    Route::apiResource('product', ProductController::class);
-    Route::apiResource('store', StoreController::class);
-    Route::apiResource('distribution-centers', DistributionCenterController::class);
-    Route::get('fill-order/no-bills', [FillOrderController::class, 'fillOrderWithNoBill']);
-    Route::apiResource('fill-order', FillOrderController::class);
-    Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
-    Route::apiResource('fill-bill', FillBillController::class);
-    Route::apiResource('book-in', BookInController::class);
-    Route::get('sell-order/no-bills', [SellOrderController::class, 'sellOrderWithNoBill']);
-    Route::apiResource('sell-order', SellOrderController::class);
-    Route::get('sell-bill/no-bookOuts', [SellBillController::class, 'sellBillWithNoFullBookOut']);
-    Route::apiResource('sell-bill', SellBillController::class);
-    Route::apiResource('book-out', BookOutController::class);
-
+    Route::apiResource('distribution-centers', DistributionCenterController::class)->except(['index','show']);
 });
 
-
-
-
-
-
-
-Route::middleware('auth:sanctum','role:warehouseManger')->group(function () {
-
-    Route::get('user-profile', [ProfileController::class, 'myprofile']);
-
-
-    Route::apiResource('store-category', StoreCategoryController::class)->only('index', 'show');
-    Route::apiResource('product-category', ProductCategoryController::class)->only('index', 'show');
-    Route::apiResource('state', StateController::class)->only('index', 'show');
-    Route::apiResource('location', LocationController::class)->only('index', 'show');
-    Route::apiResource('product', ProductController::class)->only('index', 'show');
-    Route::apiResource('store', StoreController::class)->only('index', 'show');
-    Route::apiResource('distribution-centers', DistributionCenterController::class)->only('index', 'show');
-
-    Route::get('fill-order/no-bills', [FillOrderController::class, 'fillOrderWithNoBill']);
-    Route::apiResource('fill-order', FillOrderController::class);
-    Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
-    Route::apiResource('fill-bill', FillBillController::class)->only('index', 'show');
-    Route::apiResource('book-in', BookInController::class);
-    Route::get('sell-order/no-bills', [SellOrderController::class, 'sellOrderWithNoBill']);
-    Route::apiResource('sell-order', SellOrderController::class)->only('index', 'show');
-    Route::get('sell-bill/no-bookOuts', [SellBillController::class, 'sellBillWithNoFullBookOut']);
-    Route::apiResource('sell-bill', SellBillController::class)->only('index', 'show');
-    Route::apiResource('book-out', BookOutController::class);
-
-
-
-
-});
-
-
-
-
-
+/**
+ *    routes for distributionCenter
+ */
 Route::middleware('auth:sanctum','role:distributionCenter')->group(function () {
-
-    Route::get('user-profile', [ProfileController::class, 'myprofile']);
-
-
-    Route::apiResource('product-category', ProductCategoryController::class)->only('index', 'show');
-    Route::apiResource('product', ProductController::class)->only('index', 'show');
-    Route::apiResource('distribution-centers', DistributionCenterController::class)->only('show');
-
-    Route::apiResource('sell-order', SellOrderController::class)->only('show', 'store', 'update', 'destroy');
-
-    Route::apiResource('sell-bill', SellBillController::class)->only('show');
-
-});
-
-
-
-
-Route::middleware('auth:sanctum','role:Accountant')->group(function () {
-
-    Route::get('user-profile', [ProfileController::class, 'myprofile']);
-
-
-    Route::apiResource('store-category', StoreCategoryController::class)->only('index', 'show');
-    Route::apiResource('product-category', ProductCategoryController::class);
-    Route::apiResource('state', StateController::class)->only('index', 'show');
-    Route::apiResource('location', LocationController::class)->only('index', 'show');
-    Route::apiResource('product', ProductController::class);
-    Route::apiResource('store', StoreController::class)->only('index', 'show');
-    Route::apiResource('distribution-centers', DistributionCenterController::class)->only('index', 'show');
-
-    Route::get('fill-order/no-bills', [FillOrderController::class, 'fillOrderWithNoBill']);
-    Route::apiResource('fill-order', FillOrderController::class);
-    Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
-    Route::apiResource('fill-bill', FillBillController::class);
-    Route::apiResource('book-in', BookInController::class)->only('index', 'show');
-    Route::get('sell-order/no-bills', [SellOrderController::class, 'sellOrderWithNoBill']);
-    Route::apiResource('sell-order', SellOrderController::class)->only('index', 'show');
-    Route::get('sell-bill/no-bookOuts', [SellBillController::class, 'sellBillWithNoFullBookOut']);
-    Route::apiResource('sell-bill', SellBillController::class);
-    Route::apiResource('book-out', BookOutController::class)->only('index', 'show');;
-
-
+    Route::apiResource('sell-order', SellOrderController::class)->only(['store', 'update', 'destroy']);
 });
