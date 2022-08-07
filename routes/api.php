@@ -150,3 +150,10 @@ Route::middleware('auth:sanctum','role:Accountant')->group(function () {
 
 
 });
+
+
+
+Route::get('fill-order/my-orders', [FillOrderController::class, 'myOrders']);
+Route::get('fill-order/order-bills', [FillOrderController::class, 'orderBills']);
+Route::get('sell-order/my-orders', [SellOrderController::class, 'myOrders']);
+Route::get('sell-order/order-bills', [SellOrderController::class, 'orderBills']);

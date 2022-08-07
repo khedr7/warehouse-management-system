@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\FillOrder;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -162,6 +163,7 @@ class FillOrderController extends Controller
             $s = 0;
             $fillOrder->fillOrderItems;
 
+
             foreach ($fillOrder->fillOrderItems as $fillOrderItem) {
                 $sum = 0;
                 foreach ($fillOrderItem->fillBillItems as $fillBillItem) {
@@ -179,5 +181,44 @@ class FillOrderController extends Controller
         return response()->json([
             'Fill orders with no bills' => $a,
         ], 200);
+    }
+
+    public function myOrders()
+    {
+        $fillOrders = FillOrder::all();
+        $a =[];
+        foreach ($fillOrders as $fillOrder) {
+            $fillOrder->fillOrderItems;
+            $user1 = $fillOrder->user;
+            $user2 = User::get()->where('id', 'like', Auth::id());
+            if($user1->id == $user2->id) {
+                array_push($a, $fillOrder);
+            }
+        }
+            return response()->json([
+                'My Fill Orders' => $a,
+            ], 200);
+    }
+
+    public function orderBills($id)
+    {
+        $order = FillOrder::get()->where('id', 'like', $id);
+        if ($order) {
+            $bills = $order->fillBills;
+            if ($bills) {
+                foreach ($bills as $bill) {
+                    $bill->fillBillItems;
+                }
+            }
+            return response()->json([
+                'Order bills' => $bills,
+            ], 200);
+        }
+        else {
+            return response()->json([
+                'message' => 'error',
+            ], 400);
+        }
+
     }
 }
