@@ -56,7 +56,7 @@ class BookInController extends Controller
             $store = Store::findOrFail($book_in['store_id']);
 
 
-            if ( ($book_in['quantity'] + $sum) <= $fillBillItem->quantity && ($store->current_capacity + $book_in['quantity']) <= $store->capacity) {
+            if ( ($book_in['quantity'] + $sum) <= $fillBillItem->quantity && ($store->current_capacity + $book_in['quantity']) <= $store->capacity && $fillBillItem->quantity != 0) {
 
                 $bookIn = BookIn::create([
                     'store_id'          => $book_in['store_id'],

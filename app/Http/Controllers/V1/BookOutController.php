@@ -53,7 +53,7 @@ class BookOutController extends Controller
                 $sum += $bOut->quantity;
             }
 
-        if ( ($book_out['quantity'] + $sum) <= $sellBillItem->quantity ) {
+        if ( ($book_out['quantity'] + $sum) <= $sellBillItem->quantity && $sellBillItem->quantity !=0) {
 
             $bookOut = BookOut::create([
                 'store_id'          => $book_out['store_id'],
