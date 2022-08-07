@@ -75,8 +75,15 @@ class ProductController extends Controller
         if ($product){
 
             $fillOrderItem = DB::table('fill_order_items')->where('product_id', $product->id)->latest()->first();
-            $id  = $fillOrderItem->id;
-            $fillBillItem  = DB::table('fill_bill_items')->where('fill_order_item_id', $id)->latest()->first();
+            if ($fillOrderItem) {
+
+                $id  = $fillOrderItem->id;
+                $fillBillItem  = DB::table('fill_bill_items')->where('fill_order_item_id', $id)->latest()->first();
+                if ($fillBillItem) {
+                    $product->price = $fillBillItem->price;
+
+                }
+            }
 
             $product->getMedia('images');
 
@@ -87,10 +94,11 @@ class ProductController extends Controller
                     ['store_id'  , '=', $store->id],
                     ['product_id', '=', $product->id]
             ])->first();
+            if ($storeProduct) {
                 $store->quantity = $storeProduct->quantity;
             }
+            }
 
-            $product->price = $fillBillItem->price;
             return response()->json([
                 'product'     => $product,
             ], 200);

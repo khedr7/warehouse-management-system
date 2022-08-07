@@ -68,10 +68,10 @@ class AuthController extends Controller
                     'role'  => $user->getRoleNames(),
                 ], 200);
             }
-            return response()->json([
-                'message' => 'email or password is wrong',
-            ], 400);
         }
+        return response()->json([
+            'message' => 'email or password is wrong',
+        ], 400);
     }
 
     /**
