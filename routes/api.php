@@ -62,6 +62,7 @@ Route::middleware('auth:sanctum','role:superAdmin|Accountant')->group(function (
     Route::apiResource('fill-bill', FillBillController::class)->except(['index', 'show']);
     Route::get('fill-order/no-bills', [FillOrderController::class, 'fillOrderWithNoBill']);
     Route::apiResource('sell-order', SellOrderController::class)->only(['index']);
+    Route::get('sell-order/order-bills', [SellOrderController::class, 'orderBills']);
     Route::get('sell-order/no-bills', [SellOrderController::class, 'sellOrderWithNoBill']);
     Route::apiResource('sell-bill', SellBillController::class)->except(['index','show']);
 });
@@ -85,11 +86,14 @@ Route::middleware('auth:sanctum','role:superAdmin|Accountant|warehouseManger')->
     Route::apiResource('store', StoreController::class)->only(['index', 'show']);
     Route::apiResource('fill-order', FillOrderController::class)->except(['index']);
     Route::apiResource('fill-bill', FillBillController::class)->only(['index', 'show']);
+    Route::get('fill-order/order-bills', [FillOrderController::class, 'orderBills']);
+    Route::get('fill-order/my-orders', [FillOrderController::class, 'myOrders']);
     Route::get('fill-bill/no-bookIns', [FillBillController::class, 'fillBillWithNoFullBookIn']);
     Route::apiResource('book-in', BookInController::class)->only(['index', 'show']);
     Route::apiResource('sell-bill', SellBillController::class)->only(['index']);
     Route::get('sell-bill/no-bookOuts', [SellBillController::class, 'sellBillWithNoFullBookOut']);
     Route::apiResource('book-out', BookOutController::class)->only(['index', 'show']);
+
 });
 
 /**
@@ -117,11 +121,10 @@ Route::middleware('auth:sanctum','role:superAdmin')->group(function () {
  */
 Route::middleware('auth:sanctum','role:distributionCenter')->group(function () {
     Route::apiResource('sell-order', SellOrderController::class)->only(['store', 'update', 'destroy']);
+    Route::get('sell-order/my-orders', [SellOrderController::class, 'myOrders']);
+
 });
 
 
 
-Route::get('fill-order/my-orders', [FillOrderController::class, 'myOrders']);
-Route::get('fill-order/order-bills', [FillOrderController::class, 'orderBills']);
-Route::get('sell-order/my-orders', [SellOrderController::class, 'myOrders']);
-Route::get('sell-order/order-bills', [SellOrderController::class, 'orderBills']);
+
