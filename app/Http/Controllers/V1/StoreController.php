@@ -160,4 +160,67 @@ class StoreController extends Controller
             'message' => "Error",
         ], 400);
     }
+
+
+    public function move(Request $request)
+    {
+        $validation = $request->validate([
+            'store_id_1'  => 'required|numeric|exists:stores,id',
+            'store_id_2'  => 'required|numeric|exists:stores,id',
+            'product_id'  => 'required|numeric|exists:products,id',
+            'quantity'    => 'required|numeric',
+        ]);
+
+        $store_1 = DB::table('store_product')->select('store_product.*')->where([
+            ['store_id'  , '=', $validation['store_id_1']],
+            ['product_id', '=', $validation['product_id']]
+        ])->first();
+
+        if ($store_1->quantity >= $validation['quantity']) {
+            DB::table('store_product')->select('store_product.*')->where([
+                ['store_id'  , '=', $validation['store_id_1']],
+                ['product_id', '=', $validation['product_id']]
+            ])->limit(1)
+            ->update(array('quantity' => DB::raw('quantity -'. $validation['quantity'])));
+
+            $store = Store::findOrFail($validation['store_id_1']);
+            $store->current_capacity = $store->current_capacity - $validation['quantity'];
+            $store->save();
+
+            $store_2 = DB::table('store_product')->select('store_product.*')->where([
+                ['store_id'  , '=', $validation['store_id_2']],
+                ['product_id', '=', $validation['product_id']]
+            ])->first();
+
+            if ($store_2) {
+                DB::table('store_product')->select('store_product.*')->where([
+                    ['store_id'  , '=', $validation['store_id_2']],
+                    ['product_id', '=', $validation['product_id']]
+                ])->limit(1)
+                ->update(array('quantity' => DB::raw('quantity +'. $validation['quantity'])));
+
+                $store = Store::findOrFail($validation['store_id_2']);
+                $store->current_capacity = $store->current_capacity + $validation['quantity'];
+                $store->save();
+            }
+            else {
+                $store = Store::findOrFail($validation['store_id_2']);
+                $store->products()->attach($$validation['product_id'], ['quantity' => $validation['quantity']]);
+
+                $store->current_capacity = $store->current_capacity + $validation['quantity'];
+                $store->save();
+            }
+
+            return response()->json([
+                'message' => "done",
+            ], 200);
+        }
+
+        else {
+            return response()->json([
+                'message' => "The first store does not has enough products",
+            ], 400);
+        }
+
+    }
 }

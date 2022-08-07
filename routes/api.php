@@ -118,3 +118,10 @@ Route::middleware('auth:sanctum','role:superAdmin')->group(function () {
 Route::middleware('auth:sanctum','role:distributionCenter')->group(function () {
     Route::apiResource('sell-order', SellOrderController::class)->only(['store', 'update', 'destroy']);
 });
+
+
+
+Route::get('fill-order/my-orders', [FillOrderController::class, 'myOrders']);
+Route::get('fill-order/order-bills', [FillOrderController::class, 'orderBills']);
+Route::get('sell-order/my-orders', [SellOrderController::class, 'myOrders']);
+Route::get('sell-order/order-bills', [SellOrderController::class, 'orderBills']);

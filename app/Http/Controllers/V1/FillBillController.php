@@ -110,7 +110,100 @@ class FillBillController extends Controller
      */
     public function update(Request $request, FillBill $fillBill)
     {
-        //
+        $validation = $request->validate([
+            'number'        => 'required|numeric',
+            'description'   => 'max:100',
+            'fillBillItems' => 'required|array'
+        ]);
+
+        $fillBill->number = $validation['number'];
+        $fillBill->description = $validation['description'];
+        $fillBill->save();
+
+        foreach ($fillBill->fillBillItems as $fillBillItem) {
+
+            if (count($fillBillItem->bookIns) == 0) {
+
+                $s=0;
+                foreach ($validation['fillBillItems'] as $validatItem) {
+                    if ($fillBillItem->fill_order_item_id == $validatItem['fill_order_item_id']) {
+                        $s++;
+                        $val = $validatItem;
+                    }
+                }
+                if ($s !== 0) {
+
+                    $fillOrderItem = FillOrderItem::findOrFail($fillBillItem->fill_order_item_id);
+                    $fbItems = $fillOrderItem->fillBillItems;
+                    $sum = 0;
+                    foreach ($fbItems as $fbItem) {
+                        $sum += $fbItem->quantity;
+                    }
+                    $sum -= $fillBillItem->quantity;
+
+                    if ( ($val['quantity'] + $sum) <= $fillOrderItem->quantity ){
+                        $fillBillItem->quantity = $val['quantity'];
+                        $fillBillItem->price = $val['price'];
+                        $fillBillItem->save();
+                    }
+                    else {
+                        $fillBillItem->price = $val['price'];
+                        $fillBillItem->save();
+                    }
+                }
+                else {
+                    $fillBillItem->delete();
+                }
+            }
+            else {
+                $s=0;
+                foreach ($validation['fillBillItems'] as $validatItem) {
+                    if ($fillBillItem->fill_order_item_id == $validatItem['fill_order_item_id']) {
+                        $s++;
+                        $val = $validatItem;
+                    }
+                }
+                if ($s !== 0) {
+                    $fillBillItem->price = $val['price'];
+                    $fillBillItem->save();
+                }
+            }
+        }
+        $a=0;
+        foreach ($validation['fillBillItems'] as $validatItem) {
+            foreach ($fillBill->fillBillItems as $fillBillItem) {
+                if ($validatItem['fill_order_item_id'] == $fillBillItem->fill_order_item_id) {
+                    $a++;
+                }
+            }
+            if ($a == 0) {
+                $fillOrderItem = FillOrderItem::findOrFail($validatItem['fill_order_item_id']);
+                $fbItems = $fillOrderItem->fillBillItems;
+                $sum = 0;
+                foreach ($fbItems as $fbItem) {
+                    $sum += $fbItem->quantity;
+                }
+
+                if ( ($validatItem['quantity'] + $sum) <= $fillOrderItem->quantity ){
+                    $fillBill->fillBillItems()->create([
+                        'fill_bill_id'       => $fillBill->id,
+                        'fill_order_item_id' => $validatItem['fill_order_item_id'],
+                        'price'              => $validatItem['price'],
+                        'quantity'           => $validatItem['quantity'],
+                    ]);
+                }
+            }
+        }
+
+        if ($fillBill){
+            return response()->json([
+                'message' => "fill Bill edited successfully",
+            ], 200);
+        }
+        return response()->json([
+            'message' => 'Error',
+        ], 400);
+
     }
 
     /**

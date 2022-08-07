@@ -4,7 +4,9 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\DistributionCenter;
+use App\Models\SellBill;
 use App\Models\SellOrder;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -190,5 +192,47 @@ class SellOrderController extends Controller
         return response()->json([
             'Sell orders with no bills' => $a,
         ], 200);
+    }
+
+
+    public function myOrders()
+    {
+        $sellOrders = SellOrder::all();
+        $a =[];
+        foreach ($sellOrders as $sellOrder) {
+            $sellOrder->sellOrderItems;
+            $distCenter = $sellOrder->distributionCenter;
+            $user1 = $distCenter->user;
+            $user2 = User::get()->where('id', 'like', Auth::id());
+            if($user1->id == $user2->id) {
+                array_push($a, $sellOrder);
+            }
+        }
+
+        return response()->json([
+            'My Sell Orders' => $a,
+        ], 200);
+    }
+
+    public function orderBills($id)
+    {
+        $order = SellOrder::get()->where('id', 'like', $id);
+        if ($order) {
+            $bills = $order->sellBills;
+            if ($bills) {
+                foreach ($bills as $bill) {
+                    $bill->sellBillItems;
+                }
+            }
+            return response()->json([
+                'Order bills' => $bills,
+            ], 200);
+        }
+        else {
+            return response()->json([
+                'message' => 'error',
+            ], 400);
+        }
+
     }
 }
