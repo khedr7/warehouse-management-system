@@ -73,6 +73,7 @@ Route::middleware('auth:sanctum','role:superAdmin|Accountant')->group(function (
 Route::middleware('auth:sanctum','role:superAdmin|warehouseManger')->group(function () {
     Route::apiResource('book-in', BookInController::class)->except(['index', 'show']);
     Route::apiResource('book-out', BookOutController::class)->except(['index', 'show']);
+    Route::post('product/move',[StoreController::class,'move']);
 });
 
 
