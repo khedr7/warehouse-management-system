@@ -41,6 +41,15 @@ Route::post('/logout',[AuthController::class,'logout'])->middleware('auth:sanctu
 
 
 
+/**
+ *  sharing routes between superadmin and warehouseManger
+ */
+Route::middleware('auth:sanctum','role:superAdmin|warehouseManger')->group(function () {
+    Route::apiResource('book-in', BookInController::class)->except(['index', 'show']);
+    Route::apiResource('book-out', BookOutController::class)->except(['index', 'show']);
+    Route::post('store/move',[StoreController::class,'move']);
+});
+
 
 
 
@@ -101,15 +110,6 @@ Route::middleware('auth:sanctum','role:superAdmin|Accountant')->group(function (
 
 
 
-
-/**
- *  sharing routes between superadmin and warehouseManger
- */
-Route::middleware('auth:sanctum','role:superAdmin|warehouseManger')->group(function () {
-    Route::apiResource('book-in', BookInController::class)->except(['index', 'show']);
-    Route::apiResource('book-out', BookOutController::class)->except(['index', 'show']);
-    Route::post('product/move',[StoreController::class,'move']);
-});
 
 
 

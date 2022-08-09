@@ -90,12 +90,12 @@ class BookOutController extends Controller
             }
         }
 
-        if ($number = count($validation['book_outs'])) {
+        if ($number == count($validation['book_outs'])) {
             return response()->json([
                 'message' => "done",
             ], 200);
         }
-        elseif ($number = 0) {
+        elseif ($number == 0) {
             return response()->json([
                 'message' => "Error: No Items ",
             ], 400);

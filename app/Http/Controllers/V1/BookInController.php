@@ -101,7 +101,7 @@ class BookInController extends Controller
             }
         }
 
-        if ($number = count($validation['book_ins'])) {
+        if ($number == count($validation['book_ins'])) {
             return response()->json([
                 'message' => "done",
             ], 200);
