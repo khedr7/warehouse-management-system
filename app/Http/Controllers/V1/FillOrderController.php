@@ -189,9 +189,10 @@ class FillOrderController extends Controller
         $a =[];
         foreach ($fillOrders as $fillOrder) {
             $fillOrder->fillOrderItems;
-            $user1 = $fillOrder->user;
-            $user2 = User::get()->where('id', 'like', Auth::id());
-            if($user1->id == $user2->id) {
+            $user1 = $fillOrder->user_id;
+            // $users = User::all();
+            // $user2 = $users->where('id', 'like', Auth::id());
+            if($user1->id == Auth::id()) {
                 array_push($a, $fillOrder);
             }
         }
@@ -200,9 +201,10 @@ class FillOrderController extends Controller
             ], 200);
     }
 
-    public function orderBills($id)
+    public function orderBills(Request $request)
     {
-        $order = FillOrder::get()->where('id', 'like', $id);
+
+        $order = FillOrder::get()->where('id', 'like', $request->id);
         if ($order) {
             $bills = $order->fillBills;
             if ($bills) {

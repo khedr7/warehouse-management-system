@@ -214,9 +214,9 @@ class SellOrderController extends Controller
         ], 200);
     }
 
-    public function orderBills($id)
+    public function orderBills(Request $request)
     {
-        $order = SellOrder::get()->where('id', 'like', $id);
+        $order = SellOrder::get()->where('id', 'like', $request->id);
         if ($order) {
             $bills = $order->sellBills;
             if ($bills) {

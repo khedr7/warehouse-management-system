@@ -22,7 +22,7 @@ class AuthController extends Controller
             'email'    => 'required|email',
             'password' => 'required',
             'phone'    => 'required',
-            'store_id' => 'exists:stores,id',
+            'store_id' => 'array',
             'role'     =>'required|string',
         ]);
 
@@ -30,7 +30,9 @@ class AuthController extends Controller
         $user = User::create($validation);
         $user->assignRole($validation['role']);
         if ($request->hasFile('store_id')) {
-            $user->stores()->attach($validation['store_id']);
+        foreach ($validation['store_id'] as $store_id) {
+                $user->stores()->attach($store_id);
+            }
         }
         if ($user){
             return response()->json([
