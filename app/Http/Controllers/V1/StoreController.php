@@ -205,7 +205,7 @@ class StoreController extends Controller
             }
             else {
                 $store = Store::findOrFail($validation['store_id_2']);
-                $store->products()->attach($$validation['product_id'], ['quantity' => $validation['quantity']]);
+                $store->products()->attach($validation['product_id'], ['quantity' => $validation['quantity']]);
 
                 $store->current_capacity = $store->current_capacity + $validation['quantity'];
                 $store->save();

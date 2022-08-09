@@ -129,6 +129,9 @@ class SellBillController extends Controller
         //
     }
 
+
+
+
     public function sellBillWithNoFullBookOut()
     {
         $sellBills = SellBill::all();

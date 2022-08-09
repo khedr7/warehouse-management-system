@@ -191,8 +191,8 @@ class FillOrderController extends Controller
             $fillOrder->fillOrderItems;
             $user1 = $fillOrder->user_id;
             // $users = User::all();
-            // $user2 = $users->where('id', 'like', Auth::id());
-            if($user1->id == Auth::id()) {
+            // $user1 = $users->where('id', 'like', Auth::id());
+            if($user1 == Auth::id()) {
                 array_push($a, $fillOrder);
             }
         }
@@ -204,7 +204,9 @@ class FillOrderController extends Controller
     public function orderBills(Request $request)
     {
 
-        $order = FillOrder::get()->where('id', 'like', $request->id);
+        $orders = FillOrder::all();
+        $a = [];
+        foreach ($orders as $order) {
         if ($order) {
             $bills = $order->fillBills;
             if ($bills) {
@@ -212,15 +214,14 @@ class FillOrderController extends Controller
                     $bill->fillBillItems;
                 }
             }
-            return response()->json([
-                'Order bills' => $bills,
-            ], 200);
+            if ($order->id == $request->id ) {
+                array_push($a, $bills);
+            }
         }
-        else {
-            return response()->json([
-                'message' => 'error',
-            ], 400);
-        }
+        return response()->json([
+            'Order bills' => $bills,
+        ], 200);
+    }
 
     }
 }

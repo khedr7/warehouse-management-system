@@ -203,8 +203,7 @@ class SellOrderController extends Controller
             $sellOrder->sellOrderItems;
             $distCenter = $sellOrder->distributionCenter;
             $user1 = $distCenter->user;
-            $user2 = User::get()->where('id', 'like', Auth::id());
-            if($user1->id == $user2->id) {
+            if($user1->id == Auth::id()) {
                 array_push($a, $sellOrder);
             }
         }
@@ -216,23 +215,24 @@ class SellOrderController extends Controller
 
     public function orderBills(Request $request)
     {
-        $order = SellOrder::get()->where('id', 'like', $request->id);
-        if ($order) {
-            $bills = $order->sellBills;
-            if ($bills) {
-                foreach ($bills as $bill) {
-                    $bill->sellBillItems;
+        $orders = SellOrder::all();
+        $a = [];
+        foreach ($orders as $order) {
+            if ($order) {
+                $bills = $order->sellBills;
+                if ($bills) {
+                    foreach ($bills as $bill) {
+                        $bill->sellBillItems;
+                    }
+                }
+                if ($order->id == $request->id ) {
+                    array_push($a, $bills);
                 }
             }
-            return response()->json([
-                'Order bills' => $bills,
-            ], 200);
         }
-        else {
-            return response()->json([
-                'message' => 'error',
-            ], 400);
-        }
+        return response()->json([
+            'Order bills' => $bills,
+        ], 200);
 
     }
 }
