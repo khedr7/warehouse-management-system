@@ -39,7 +39,11 @@ class BookOutController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'book_outs'         => 'required|array',
+            'book_outs'                     => 'required|array',
+            'book_outs.*.store_id'          => 'required|numeric|exists:stores,id',
+            'book_outs.*.sell_bill_item_id' => 'required|numeric|exists:sell_Bill_Items,id',
+            'book_outs.*.date'              => 'required|date',
+            'book_outs.*.quantity'          => 'required|numeric'
         ]);
 
         $number = 0;

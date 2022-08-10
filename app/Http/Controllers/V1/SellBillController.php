@@ -38,10 +38,12 @@ class SellBillController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'number'   => 'required|numeric',
-            'description'   => 'max:100',
-            'sell_order_id' => 'required|numeric|exists:sell_Orders,id',
-            'sellBillItems' => 'required|array'
+            'number'                             => 'required|numeric',
+            'description'                        => 'max:100',
+            'sell_order_id'                      => 'required|numeric|exists:sell_Orders,id',
+            'sellBillItems'                      => 'required|array',
+            'sellBillItems.*.sell_order_item_id' => 'required|numeric|exists:sell_Order_Items,id',
+            'sellBillItems.*.quantity'           => 'required|numeric'
         ]);
         $sellBill = SellBill::create($validation);
 

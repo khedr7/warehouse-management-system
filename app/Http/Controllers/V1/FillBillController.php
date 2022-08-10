@@ -111,9 +111,11 @@ class FillBillController extends Controller
     public function update(Request $request, FillBill $fillBill)
     {
         $validation = $request->validate([
-            'number'        => 'required|numeric',
-            'description'   => 'max:100',
-            'fillBillItems' => 'required|array'
+            'number'                             => 'required|numeric',
+            'description'                        => 'max:100',
+            'fillBillItems'                      => 'required|array',
+            'fillBillItems.*.fill_order_item_id' => 'required|numeric|exists:fill_order_items,id',
+            'fillBillItems.*.quantity'           => 'required|numeric'
         ]);
 
         $fillBill->number = $validation['number'];

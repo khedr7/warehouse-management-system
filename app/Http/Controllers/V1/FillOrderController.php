@@ -98,8 +98,10 @@ class FillOrderController extends Controller
         if (count($fillOrder->fillBills) == 0 && $date > now() && $fillOrder->user_id == Auth::id()) {
 
             $validation = $request->validate([
-                'description'    => 'max:100',
-                'fillOrderItems' => 'required|array'
+                'description'                 => 'max:100',
+                'fillOrderItems'              => 'required|array',
+                'fillOrderItems.*.product_id' => 'required|numeric|exists:products,id',
+                'fillOrderItems.*.quantity'   => 'required|numeric'
             ]);
 
             $fillOrder->description = $validation['description'];

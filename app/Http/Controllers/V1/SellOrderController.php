@@ -40,8 +40,10 @@ class SellOrderController extends Controller
     public function store(Request $request)
     {
         $validation = $request->validate([
-            'description'    => 'max:100',
-            'sellOrderItems' => 'required|array'
+            'description'                 => 'max:100',
+            'sellOrderItems'              => 'required|array',
+            'sellOrderItems.*.product_id' => 'required|numeric|exists:products,id',
+            'sellOrderItems.*.quantity'   => 'required|numeric'
         ]);
         $user_id = Auth::id();
         $distributionCenters = DistributionCenter::all();
